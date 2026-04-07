@@ -12,7 +12,7 @@ export const DEMO_RESULT: SearchResult = {
     {
       id: 'demo_1',
       title: 'I Did 100 Push-Ups Every Day For 30 Days (Unexpected Results)',
-      views: 5800000,
+      views: 58000000,
       avgViews: 320000,
       multiplier: 18.1,
       thumbnail: '',
