@@ -1,0 +1,48 @@
+name: Deploy to Vercel
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      - name: Deploy to Vercel (Production)
+        if: github.ref == 'refs/heads/main'
+        run: |
+          npx vercel --token=${{ secrets.VERCEL_TOKEN }} \
+            --prod \
+            --yes \
+            -e NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }} \
+            -e NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }} \
+            -e SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }} \
+            -e YOUTUBE_API_KEY=${{ secrets.YOUTUBE_API_KEY }} \
+            -e OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
+            -e STRIPE_PAYMENT_LINK=${{ secrets.STRIPE_PAYMENT_LINK }} \
+            -e STRIPE_WEBHOOK_SECRET=${{ secrets.STRIPE_WEBHOOK_SECRET }} \
+            -e NEXT_PUBLIC_BASE_URL=${{ secrets.NEXT_PUBLIC_BASE_URL }}
+
+      - name: Deploy to Vercel (Preview)
+        if: github.ref != 'refs/heads/main'
+        run: |
+          npx vercel --token=${{ secrets.VERCEL_TOKEN }} --yes
