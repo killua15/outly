@@ -7,14 +7,15 @@ import { cn } from '@/lib/utils'
 
 interface Props {
   onUpgradeClick: () => void
+  refreshKey?: number
 }
 
-export function UsageBanner({ onUpgradeClick }: Props) {
+export function UsageBanner({ onUpgradeClick, refreshKey }: Props) {
   const [remaining, setRemaining] = useState<number | null>(null)
 
   useEffect(() => {
     setRemaining(getRemainingSearches())
-  }, [])
+  }, [refreshKey])
 
   // Don't render until hydrated or if Pro
   if (remaining === null || remaining === Infinity) return null

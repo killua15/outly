@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- Background circle -->
+  <circle cx="16" cy="16" r="16" fill="#f97316"/>
+  <!-- Trending arrow / chart bars suggesting outlier spike -->
+  <rect x="7" y="20" width="3.5" height="5" rx="1" fill="white" opacity="0.7"/>
+  <rect x="12" y="15" width="3.5" height="10" rx="1" fill="white" opacity="0.85"/>
+  <rect x="17" y="10" width="3.5" height="15" rx="1" fill="white"/>
+  <!-- Outlier spike bar -->
+  <rect x="22" y="4" width="3.5" height="21" rx="1.5" fill="white"/>
+  <!-- Star/sparkle on top of spike -->
+  <circle cx="23.75" cy="3" r="2" fill="#fef3c7"/>
+</svg>

@@ -17,6 +17,10 @@ export const metadata: Metadata = {
     'youtube outlier finder',
     'youtube content strategy',
   ],
+  icons: {
+    icon: '/logo.svg',
+    apple: '/logo.svg',
+  },
   openGraph: {
     title: 'Outly — Find Viral YouTube Video Ideas Instantly',
     description:

@@ -6,11 +6,14 @@ import { SearchInput } from '@/components/SearchInput'
 import { ResultsSection } from '@/components/ResultsSection'
 import { UpgradeModal } from '@/components/UpgradeModal'
 import { UsageBanner } from '@/components/UsageBanner'
-import { getUsage, incrementUsage, hasReachedLimit } from '@/lib/usage'
+import { getUsage, incrementUsage, hasReachedLimit, setProUser } from '@/lib/usage'
+import { getSupabase } from '@/lib/supabase'
 import type { SearchResult } from '@/types'
-import { TrendingUp, Share2, Check } from 'lucide-react'
+import { TrendingUp, Share2, Check, LogIn, LogOut } from 'lucide-react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { EmailCapture } from '@/components/EmailCapture'
+import { AuthModal } from '@/components/AuthModal'
 
 const NICHES = ['fitness', 'crypto', 'gaming', 'finance', 'cooking', 'tech', 'travel']
 
@@ -22,6 +25,9 @@ export default function Home() {
   const [upgradeTrigger, setUpgradeTrigger] = useState<'limit' | 'blur' | 'manual'>('manual')
   const [isPro, setIsPro] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [bannerKey, setBannerKey] = useState(0)
+  const [showAuth, setShowAuth] = useState(false)
+  const [userEmail, setUserEmail] = useState<string | null>(null)
 
   useEffect(() => {
     const { isPro: pro } = getUsage()
@@ -32,6 +38,31 @@ export default function Home() {
     if (params.get('canceled') === 'true') {
       window.history.replaceState({}, '', '/')
     }
+
+    // Sync Supabase session → pro status
+    async function syncAuth() {
+      try {
+        const supabase = getSupabase()
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!session?.user) return
+
+        setUserEmail(session.user.email ?? null)
+
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('plan')
+          .eq('id', session.user.id)
+          .single()
+
+        if (profile?.plan === 'pro') {
+          setProUser()
+          setIsPro(true)
+        }
+      } catch {
+        // Supabase not configured or no session — silent
+      }
+    }
+    syncAuth()
   }, [])
 
   function handleResult(data: SearchResult) {
@@ -39,6 +70,7 @@ export default function Home() {
     setResult(data)
     // Increment usage after successful search
     incrementUsage()
+    setBannerKey((k) => k + 1)
     setTimeout(() => {
       document.getElementById('results')?.scrollIntoView({ behavior: 'smooth' })
     }, 100)
@@ -82,11 +114,12 @@ export default function Home() {
         onClose={() => setShowUpgrade(false)}
         trigger={upgradeTrigger}
       />
+      <AuthModal open={showAuth} onClose={() => setShowAuth(false)} />
 
       {/* Nav */}
       <nav className="flex items-center justify-between px-6 py-4 max-w-5xl mx-auto w-full">
         <Link href="/" className="flex items-center gap-2 font-bold text-lg tracking-tight">
-          <TrendingUp size={20} className="text-orange-500" />
+          <Image src="/logo.svg" alt="Outly" width={28} height={28} />
           Outly
         </Link>
         <div className="flex items-center gap-3">
@@ -106,6 +139,28 @@ export default function Home() {
               className="hidden sm:block text-sm bg-orange-500 hover:bg-orange-600 text-white px-4 py-1.5 rounded-lg transition-colors font-medium"
             >
               Go Pro — $9/mo
+            </button>
+          )}
+          {userEmail ? (
+            <button
+              onClick={async () => {
+                const supabase = getSupabase()
+                await supabase.auth.signOut()
+                setUserEmail(null)
+              }}
+              className="flex items-center gap-1.5 text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+              title={userEmail}
+            >
+              <LogOut size={14} />
+              <span className="hidden sm:inline">Sign out</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => setShowAuth(true)}
+              className="flex items-center gap-1.5 text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+            >
+              <LogIn size={14} />
+              <span className="hidden sm:inline">Sign in</span>
             </button>
           )}
           <ThemeToggle />
@@ -142,7 +197,7 @@ export default function Home() {
           {/* Usage banner */}
           {!isPro && (
             <div className="mt-4">
-              <UsageBanner onUpgradeClick={() => openUpgrade('limit')} />
+              <UsageBanner onUpgradeClick={() => openUpgrade('limit')} refreshKey={bannerKey} />
             </div>
           )}
 
