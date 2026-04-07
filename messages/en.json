@@ -100,13 +100,19 @@
   },
   "auth": {
     "title": "Sign in to Outly",
-    "subtitle": "Enter your email and we'll send you a magic link. No password needed.",
+    "subtitle": "Enter your email — we'll send a 6-digit code. No password, no redirects.",
     "placeholder": "you@example.com",
-    "sendLink": "Send magic link",
+    "sendCode": "Send code",
     "sending": "Sending...",
-    "sentTitle": "Check your email",
-    "sentDesc": "We sent a login link to {email}. Click it to sign in — your Pro access will sync automatically.",
-    "error": "Failed to send link"
+    "codeTitle": "Enter your code",
+    "codeDesc": "We sent a 6-digit code to {email}",
+    "verify": "Verify",
+    "verifying": "Verifying...",
+    "changeEmail": "← Use a different email",
+    "doneTitle": "You're in!",
+    "doneDesc": "Signed in successfully. Your Pro access is active.",
+    "error": "Failed to send code",
+    "codeError": "Invalid code — check your email and try again"
   },
   "email": {
     "done": "You're in! Check your inbox for tips.",

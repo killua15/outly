@@ -100,13 +100,19 @@
   },
   "auth": {
     "title": "Inicia sesión en Outly",
-    "subtitle": "Ingresa tu email y te enviamos un enlace mágico. Sin contraseña.",
+    "subtitle": "Ingresa tu email — te enviamos un código de 6 dígitos. Sin contraseña.",
     "placeholder": "tu@email.com",
-    "sendLink": "Enviar enlace mágico",
+    "sendCode": "Enviar código",
     "sending": "Enviando...",
-    "sentTitle": "Revisa tu email",
-    "sentDesc": "Enviamos un enlace de inicio de sesión a {email}. Haz clic para entrar — tu acceso Pro se sincronizará automáticamente.",
-    "error": "No se pudo enviar el enlace"
+    "codeTitle": "Ingresa tu código",
+    "codeDesc": "Enviamos un código de 6 dígitos a {email}",
+    "verify": "Verificar",
+    "verifying": "Verificando...",
+    "changeEmail": "← Usar otro email",
+    "doneTitle": "¡Listo!",
+    "doneDesc": "Sesión iniciada. Tu acceso Pro está activo.",
+    "error": "No se pudo enviar el código",
+    "codeError": "Código inválido — revisa tu email e intenta de nuevo"
   },
   "email": {
     "done": "¡Listo! Revisa tu bandeja los viernes.",
