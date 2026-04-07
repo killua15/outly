@@ -5,6 +5,7 @@ import { ArrowLeft } from 'lucide-react'
 import Image from 'next/image'
 import { supabaseAdmin } from '@/lib/supabase'
 import { OutlierCard } from '@/components/OutlierCard'
+import { ShareButton } from '@/components/ShareButton'
 import { getTranslations } from 'next-intl/server'
 import type { OutlierVideo } from '@/types'
 
@@ -40,8 +41,10 @@ export default async function AnalysisPage({ params }: Props) {
 
   const outliers: OutlierVideo[] = (search.outliers ?? []).map((o: {
     video_id: string; title: string; views: number; avg_views: number; multiplier: number;
-    thumbnail: string; channel_title: string; published_at: string;
-    why_exploded: string; pattern: string; how_to_replicate: string[]; new_idea: string; ai_analyzed: boolean;
+    thumbnail: string; channel_title: string; published_at: string; days_old: number; performance_label: string;
+    why_exploded: string; pattern: string; how_to_replicate: string[]; new_idea: string;
+    next_video_title: string; next_video_hook: string; next_video_structure: string[]; next_video_cta: string;
+    tiktok_ideas: { hook: string; concept: string }[]; ai_analyzed: boolean;
   }) => ({
     id: o.video_id,
     title: o.title,
@@ -51,11 +54,20 @@ export default async function AnalysisPage({ params }: Props) {
     thumbnail: o.thumbnail,
     channelTitle: o.channel_title,
     publishedAt: o.published_at,
+    daysOld: o.days_old,
+    performanceLabel: o.performance_label as OutlierVideo['performanceLabel'],
     aiAnalysis: o.ai_analyzed ? {
       whyExploded: o.why_exploded,
       pattern: o.pattern,
       howToReplicate: o.how_to_replicate,
       newIdea: o.new_idea,
+      nextVideo: o.next_video_title ? {
+        title: o.next_video_title,
+        hook: o.next_video_hook,
+        structure: o.next_video_structure ?? [],
+        cta: o.next_video_cta,
+      } : undefined,
+      tiktokIdeas: o.tiktok_ideas ?? undefined,
     } : undefined,
   }))
 
@@ -74,13 +86,22 @@ export default async function AnalysisPage({ params }: Props) {
 
       <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-10">
         <div className="mb-6">
-          <p className="text-xs text-[var(--muted-foreground)] uppercase tracking-widest font-semibold mb-1">
-            {t('analysisFor')}
-          </p>
-          <h1 className="text-2xl font-bold">"{search.query}"</h1>
-          <p className="text-sm text-[var(--muted-foreground)] mt-1">
-            {t('outliersFrom', { count: outliers.length, total: search.total_videos_analyzed })}
-          </p>
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <p className="text-xs text-[var(--muted-foreground)] uppercase tracking-widest font-semibold mb-1">
+                {t('analysisFor')}
+              </p>
+              <h1 className="text-2xl font-bold">"{search.query}"</h1>
+              <p className="text-sm text-[var(--muted-foreground)] mt-1">
+                {t('outliersFrom', { count: outliers.length, total: search.total_videos_analyzed })}
+              </p>
+            </div>
+            <ShareButton
+              url={`${process.env.NEXT_PUBLIC_BASE_URL ?? 'https://outly.app'}/${locale}/analysis/${search.id}`}
+              query={search.query}
+              outliersCount={outliers.length}
+            />
+          </div>
         </div>
 
         <div className="space-y-4">

@@ -7,10 +7,18 @@ export interface Video {
   channelTitle: string
 }
 
-export interface OutlierVideo extends Video {
-  avgViews: number
-  multiplier: number
-  aiAnalysis?: AIAnalysis
+export type PerformanceLabel = 'Exploding' | 'Spike' | 'Consistent'
+
+export interface NextVideo {
+  title: string
+  hook: string
+  structure: string[]
+  cta: string
+}
+
+export interface TikTokIdea {
+  hook: string
+  concept: string
 }
 
 export interface AIAnalysis {
@@ -18,6 +26,16 @@ export interface AIAnalysis {
   pattern: string
   howToReplicate: string[]
   newIdea: string
+  nextVideo?: NextVideo
+  tiktokIdeas?: TikTokIdea[]
+}
+
+export interface OutlierVideo extends Video {
+  avgViews: number
+  multiplier: number
+  daysOld?: number
+  performanceLabel?: PerformanceLabel
+  aiAnalysis?: AIAnalysis
 }
 
 export interface SearchResult {
@@ -28,6 +46,7 @@ export interface SearchResult {
   totalVideosAnalyzed: number
   avgViews: number
   createdAt: string
+  isDemo?: boolean
 }
 
 export interface NicheData {

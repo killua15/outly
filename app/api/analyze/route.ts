@@ -16,7 +16,7 @@ async function getDb() {
 
 export async function POST(req: NextRequest) {
   try {
-    const { query } = await req.json()
+    const { query, locale = 'en' } = await req.json()
 
     if (!query?.trim()) {
       return NextResponse.json({ error: 'Query is required' }, { status: 400 })
@@ -48,8 +48,10 @@ export async function POST(req: NextRequest) {
           queryType: cached.query_type,
           outliers: cached.outliers.map((o: {
             video_id: string; title: string; views: number; avg_views: number; multiplier: number;
-            thumbnail: string; channel_title: string; published_at: string;
-            why_exploded: string; pattern: string; how_to_replicate: string[]; new_idea: string; ai_analyzed: boolean;
+            thumbnail: string; channel_title: string; published_at: string; days_old: number; performance_label: string;
+            why_exploded: string; pattern: string; how_to_replicate: string[]; new_idea: string;
+            next_video_title: string; next_video_hook: string; next_video_structure: string[]; next_video_cta: string;
+            tiktok_ideas: { hook: string; concept: string }[]; ai_analyzed: boolean;
           }) => ({
             id: o.video_id,
             title: o.title,
@@ -59,11 +61,20 @@ export async function POST(req: NextRequest) {
             thumbnail: o.thumbnail,
             channelTitle: o.channel_title,
             publishedAt: o.published_at,
+            daysOld: o.days_old,
+            performanceLabel: o.performance_label,
             aiAnalysis: o.ai_analyzed ? {
               whyExploded: o.why_exploded,
               pattern: o.pattern,
               howToReplicate: o.how_to_replicate,
               newIdea: o.new_idea,
+              nextVideo: o.next_video_title ? {
+                title: o.next_video_title,
+                hook: o.next_video_hook,
+                structure: o.next_video_structure ?? [],
+                cta: o.next_video_cta,
+              } : undefined,
+              tiktokIdeas: o.tiktok_ideas ?? undefined,
             } : undefined,
           })),
           totalVideosAnalyzed: cached.total_videos_analyzed,
@@ -89,7 +100,7 @@ export async function POST(req: NextRequest) {
     }
 
     // AI analysis
-    const analyzedOutliers = await analyzeOutliersBatch(outliers)
+    const analyzedOutliers = await analyzeOutliersBatch(outliers, locale)
 
     // Persist to Supabase if available
     if (db) {
@@ -112,10 +123,17 @@ export async function POST(req: NextRequest) {
               avg_views: o.avgViews,
               multiplier: o.multiplier,
               published_at: o.publishedAt,
+              days_old: o.daysOld,
+              performance_label: o.performanceLabel,
               why_exploded: o.aiAnalysis?.whyExploded,
               pattern: o.aiAnalysis?.pattern,
               how_to_replicate: o.aiAnalysis?.howToReplicate,
               new_idea: o.aiAnalysis?.newIdea,
+              next_video_title: o.aiAnalysis?.nextVideo?.title,
+              next_video_hook: o.aiAnalysis?.nextVideo?.hook,
+              next_video_structure: o.aiAnalysis?.nextVideo?.structure,
+              next_video_cta: o.aiAnalysis?.nextVideo?.cta,
+              tiktok_ideas: o.aiAnalysis?.tiktokIdeas,
               ai_analyzed: !!o.aiAnalysis,
             }))
           )

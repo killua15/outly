@@ -3,7 +3,7 @@
 import { formatViews } from '@/lib/utils'
 import { OutlierCard } from './OutlierCard'
 import type { SearchResult } from '@/types'
-import { TrendingUp, BarChart2 } from 'lucide-react'
+import { TrendingUp, BarChart2, Flame } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
 interface Props {
@@ -14,6 +14,7 @@ interface Props {
 
 export function ResultsSection({ result, isPro = false, onUpgradeClick }: Props) {
   const t = useTranslations('results')
+  const lockedCount = isPro ? 0 : Math.max(0, result.outliers.length - 1)
 
   if (!result.outliers.length) {
     return (
@@ -50,23 +51,29 @@ export function ResultsSection({ result, isPro = false, onUpgradeClick }: Props)
             outlier={outlier}
             index={i}
             isPro={isPro}
+            onUpgradeClick={onUpgradeClick}
           />
         ))}
       </div>
 
-      {/* Upgrade CTA for free users */}
-      {!isPro && result.outliers.length > 1 && (
-        <div className="mt-6 p-5 rounded-2xl border-2 border-dashed border-orange-500/30 bg-orange-50/50 dark:bg-orange-950/10 text-center">
-          <p className="text-sm font-semibold mb-1">
-            {t('unlockTitle', { count: result.outliers.length })}
-          </p>
-          <p className="text-xs text-[var(--muted-foreground)] mb-3">{t('unlockDesc')}</p>
-          <button
-            onClick={onUpgradeClick}
-            className="bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold px-6 py-2 rounded-xl transition-colors"
-          >
-            {t('upgradeCta')}
-          </button>
+      {/* FOMO banner */}
+      {!isPro && lockedCount > 0 && (
+        <div className="mt-6 rounded-2xl overflow-hidden border border-orange-500/30 bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-950/20 dark:to-amber-950/10">
+          <div className="px-6 py-5 text-center">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <Flame size={16} className="text-orange-500" />
+              <p className="text-sm font-bold text-[var(--foreground)]">
+                {t('fomoTitle', { count: lockedCount })}
+              </p>
+            </div>
+            <p className="text-xs text-[var(--muted-foreground)] mb-4">{t('fomoDesc')}</p>
+            <button
+              onClick={onUpgradeClick}
+              className="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold px-6 py-2.5 rounded-xl transition-all active:scale-95 shadow-lg shadow-orange-500/20"
+            >
+              {t('fomoBtn', { count: lockedCount })}
+            </button>
+          </div>
         </div>
       )}
     </div>

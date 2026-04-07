@@ -4,7 +4,7 @@ import { useState, useRef } from 'react'
 import { Search, ArrowRight, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { SearchResult } from '@/types'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 
 interface Props {
   onResult: (result: SearchResult) => void
@@ -18,6 +18,7 @@ const EXAMPLES = ['MrBeast', '@veritasium', 'home workout routine', 'crypto inve
 
 export function SearchInput({ onResult, onError, isLoading, setIsLoading, onBeforeSearch }: Props) {
   const t = useTranslations('search')
+  const locale = useLocale()
   const [query, setQuery] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -31,7 +32,7 @@ export function SearchInput({ onResult, onError, isLoading, setIsLoading, onBefo
       const res = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: value }),
+        body: JSON.stringify({ query: value, locale }),
       })
 
       const data = await res.json()

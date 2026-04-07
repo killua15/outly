@@ -9,10 +9,12 @@ import { UpgradeModal } from '@/components/UpgradeModal'
 import { UsageBanner } from '@/components/UsageBanner'
 import { LocaleSwitcher } from '@/components/LocaleSwitcher'
 import { AuthModal } from '@/components/AuthModal'
+import { LoadingSkeleton } from '@/components/LoadingSkeleton'
 import { getUsage, incrementUsage, hasReachedLimit, setProUser } from '@/lib/usage'
 import { getSupabase } from '@/lib/supabase'
+import { DEMO_RESULT } from '@/lib/demo'
 import type { SearchResult } from '@/types'
-import { TrendingUp, Share2, Check, LogIn, LogOut } from 'lucide-react'
+import { TrendingUp, Share2, Check, LogIn, LogOut, Sparkles } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { EmailCapture } from '@/components/EmailCapture'
@@ -37,6 +39,9 @@ export default function Home() {
   useEffect(() => {
     const { isPro: pro } = getUsage()
     setIsPro(pro)
+
+    // Show demo result immediately
+    setResult(DEMO_RESULT)
 
     const params = new URLSearchParams(window.location.search)
     if (params.get('canceled') === 'true') {
@@ -93,7 +98,7 @@ export default function Home() {
   }
 
   async function handleShare() {
-    if (!result?.id) return
+    if (!result?.id || result.isDemo) return
     const url = `${window.location.origin}/${locale}/analysis/${result.id}`
     try {
       await navigator.clipboard.writeText(url)
@@ -163,7 +168,7 @@ export default function Home() {
 
       {/* Hero */}
       <main className="flex-1 flex flex-col items-center justify-start px-4">
-        <div className="w-full max-w-2xl mx-auto pt-16 pb-8 text-center">
+        <div className="w-full max-w-2xl mx-auto pt-14 pb-8 text-center">
           <div className="inline-flex items-center gap-2 text-xs font-semibold text-orange-600 bg-orange-100 dark:bg-orange-950/40 dark:text-orange-400 px-3 py-1 rounded-full mb-6">
             <TrendingUp size={12} />
             {t('home.badge')}
@@ -172,12 +177,10 @@ export default function Home() {
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4 leading-tight">
             {t('home.title1')}{' '}
             <span className="gradient-text">{t('home.titleHighlight')}</span>
-            <br />{t('home.title2')}
           </h1>
 
           <p className="text-[var(--muted-foreground)] text-lg mb-10 max-w-lg mx-auto">
-            {t('home.subtitle')}{' '}
-            <strong className="text-[var(--foreground)]">{t('home.subtitleBold')}</strong>
+            {t('home.subtitle')}
           </p>
 
           <SearchInput
@@ -194,20 +197,7 @@ export default function Home() {
             </div>
           )}
 
-          {isLoading && (
-            <div className="mt-10 space-y-2 text-[var(--muted-foreground)] text-sm">
-              <p className="animate-pulse">{t('home.analyzing')}</p>
-              <div className="flex items-center justify-center gap-1.5">
-                {[...Array(3)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-bounce"
-                    style={{ animationDelay: `${i * 150}ms` }}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
+          {isLoading && <LoadingSkeleton />}
 
           {error && (
             <div className="mt-6 p-4 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800/30 text-sm text-red-600 dark:text-red-400">
@@ -216,10 +206,21 @@ export default function Home() {
           )}
         </div>
 
-        {result && (
+        {/* Results */}
+        {result && !isLoading && (
           <div id="results" className="w-full pb-20">
-            {result.id && (
-              <div className="max-w-2xl mx-auto px-1 mb-3 flex justify-end">
+            {/* Demo or share header */}
+            <div className="max-w-2xl mx-auto px-1 mb-3 flex items-center justify-between">
+              {result.isDemo ? (
+                <div className="flex items-center gap-2 text-xs font-semibold text-orange-600 dark:text-orange-400 bg-orange-100 dark:bg-orange-950/40 px-3 py-1.5 rounded-full">
+                  <Sparkles size={11} />
+                  {t('home.demoLabel')}
+                  <span className="font-normal text-orange-500/70">— {t('home.demoDesc')}</span>
+                </div>
+              ) : (
+                <div />
+              )}
+              {result.id && !result.isDemo && (
                 <button
                   onClick={handleShare}
                   className="flex items-center gap-1.5 text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
@@ -227,14 +228,20 @@ export default function Home() {
                   {copied ? <Check size={13} className="text-green-500" /> : <Share2 size={13} />}
                   {copied ? t('home.copied') : t('home.share')}
                 </button>
-              </div>
-            )}
-            <ResultsSection result={result} isPro={isPro} onUpgradeClick={() => openUpgrade('blur')} />
+              )}
+            </div>
+
+            <ResultsSection
+              result={result}
+              isPro={isPro}
+              onUpgradeClick={() => openUpgrade('blur')}
+            />
           </div>
         )}
 
-        {!result && !isLoading && (
-          <div className="w-full max-w-2xl mx-auto pb-20 mt-4">
+        {/* Niche links (shown only when demo is displayed) */}
+        {result?.isDemo && !isLoading && (
+          <div className="w-full max-w-2xl mx-auto pb-8 mt-2">
             <p className="text-center text-xs text-[var(--muted-foreground)] mb-3 uppercase tracking-widest font-semibold">
               {t('home.exploreNiches')}
             </p>
@@ -250,7 +257,7 @@ export default function Home() {
               ))}
             </div>
 
-            <div className="mt-16 grid grid-cols-3 gap-4 text-center border-t border-[var(--border)] pt-10">
+            <div className="mt-12 grid grid-cols-3 gap-4 text-center border-t border-[var(--border)] pt-10">
               {[
                 { stat: '3x+', label: t('home.statThreshold') },
                 { stat: '< 10s', label: t('home.statTime') },

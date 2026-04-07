@@ -1,15 +1,17 @@
 'use client'
 
+import { useState } from 'react'
 import Image from 'next/image'
 import { formatViews, formatMultiplier, cn } from '@/lib/utils'
 import type { OutlierVideo } from '@/types'
-import { Flame, Brain, Target, Lightbulb, ExternalLink, Lock } from 'lucide-react'
+import { Flame, Brain, Target, Lightbulb, ExternalLink, Lock, Clapperboard, Smartphone, Copy, Check, Zap } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
 interface Props {
   outlier: OutlierVideo
   index: number
   isPro?: boolean
+  onUpgradeClick?: () => void
 }
 
 const MULTIPLIER_COLORS = {
@@ -18,59 +20,91 @@ const MULTIPLIER_COLORS = {
   high: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
 }
 
+const LABEL_STYLES = {
+  Exploding: 'bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400',
+  Spike: 'bg-orange-100 text-orange-700 dark:bg-orange-950/40 dark:text-orange-400',
+  Consistent: 'bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400',
+}
+
 function getMultiplierColor(m: number) {
   if (m >= 10) return MULTIPLIER_COLORS.high
   if (m >= 5) return MULTIPLIER_COLORS.mid
   return MULTIPLIER_COLORS.low
 }
 
-export function OutlierCard({ outlier, index, isPro = false }: Props) {
+function CopyButton({ textToCopy, label, copiedLabel }: { textToCopy: string; label: string; copiedLabel: string }) {
+  const [copied, setCopied] = useState(false)
+  async function handleCopy() {
+    await navigator.clipboard.writeText(textToCopy)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+  return (
+    <button
+      onClick={handleCopy}
+      className="flex items-center gap-1 text-xs font-medium text-[var(--muted-foreground)] hover:text-orange-500 transition-colors"
+    >
+      {copied ? <Check size={12} className="text-green-500" /> : <Copy size={12} />}
+      {copied ? copiedLabel : label}
+    </button>
+  )
+}
+
+export function OutlierCard({ outlier, index, isPro = false, onUpgradeClick }: Props) {
   const t = useTranslations('card')
   const showAI = isPro || index === 0
-  const videoUrl = `https://www.youtube.com/watch?v=${outlier.id}`
+  const isDemo = outlier.id.startsWith('demo_')
+  const videoUrl = isDemo ? '#' : `https://www.youtube.com/watch?v=${outlier.id}`
+
+  const labelKey = outlier.performanceLabel
+    ? ({ Exploding: 'labelExploding', Spike: 'labelSpike', Consistent: 'labelConsistent' }[outlier.performanceLabel])
+    : null
+
+  const nextVideoText = outlier.aiAnalysis?.nextVideo
+    ? `Title: ${outlier.aiAnalysis.nextVideo.title}\n\nHook: ${outlier.aiAnalysis.nextVideo.hook}\n\nStructure:\n${outlier.aiAnalysis.nextVideo.structure.map((s, i) => `${i + 1}. ${s}`).join('\n')}\n\nCTA: ${outlier.aiAnalysis.nextVideo.cta}`
+    : ''
 
   return (
     <div className={cn(
-      'rounded-2xl border border-[var(--border)] bg-[var(--card)] overflow-hidden',
-      'transition-shadow hover:shadow-lg',
+      'rounded-2xl border border-[var(--border)] bg-[var(--card)] overflow-hidden transition-shadow hover:shadow-lg',
       index === 0 && 'ring-2 ring-orange-500/20'
     )}>
       {/* Thumbnail + header */}
       <div className="flex gap-4 p-5">
-        {outlier.thumbnail && (
+        {outlier.thumbnail ? (
           <a href={videoUrl} target="_blank" rel="noopener noreferrer" className="shrink-0">
             <div className="relative w-32 h-[72px] rounded-lg overflow-hidden bg-[var(--muted)]">
-              <Image
-                src={outlier.thumbnail}
-                alt={outlier.title}
-                fill
-                className="object-cover"
-              />
+              <Image src={outlier.thumbnail} alt={outlier.title} fill className="object-cover" />
             </div>
           </a>
+        ) : (
+          <div className="w-32 h-[72px] rounded-lg bg-gradient-to-br from-orange-100 to-orange-50 dark:from-orange-950/30 dark:to-orange-900/10 border border-orange-200/50 dark:border-orange-800/20 flex items-center justify-center shrink-0">
+            <Zap size={20} className="text-orange-400" />
+          </div>
         )}
+
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2 mb-1">
-            <span className={cn(
-              'text-xs font-bold px-2 py-0.5 rounded-full shrink-0',
-              getMultiplierColor(outlier.multiplier)
-            )}>
-              {formatMultiplier(outlier.multiplier)}
-            </span>
-            <a
-              href={videoUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
-            >
-              <ExternalLink size={14} />
-            </a>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className={cn('text-xs font-bold px-2 py-0.5 rounded-full shrink-0', getMultiplierColor(outlier.multiplier))}>
+                {formatMultiplier(outlier.multiplier)}
+              </span>
+              {labelKey && (
+                <span className={cn('text-xs font-semibold px-2 py-0.5 rounded-full shrink-0', LABEL_STYLES[outlier.performanceLabel!])}>
+                  {t(labelKey as never)}
+                </span>
+              )}
+            </div>
+            {!isDemo && (
+              <a href={videoUrl} target="_blank" rel="noopener noreferrer" className="text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors shrink-0">
+                <ExternalLink size={14} />
+              </a>
+            )}
           </div>
-          <h3 className="text-sm font-semibold leading-snug line-clamp-2 mb-1">
-            {outlier.title}
-          </h3>
+          <h3 className="text-sm font-semibold leading-snug line-clamp-2 mb-1">{outlier.title}</h3>
           <p className="text-xs text-[var(--muted-foreground)]">
             {formatViews(outlier.views)} views · {outlier.channelTitle}
+            {outlier.daysOld !== undefined && ` · ${t('daysAgo', { days: outlier.daysOld })}`}
           </p>
         </div>
       </div>
@@ -78,16 +112,26 @@ export function OutlierCard({ outlier, index, isPro = false }: Props) {
       {/* AI Analysis */}
       {outlier.aiAnalysis ? (
         <div className={cn('relative px-5 pb-5 space-y-4', !showAI && 'select-none')}>
+          {/* Locked overlay — FOMO */}
           {!showAI && (
-            <div className="absolute inset-0 backdrop-blur-sm bg-[var(--card)]/60 flex flex-col items-center justify-center z-10 rounded-b-2xl">
-              <Lock size={20} className="text-[var(--muted-foreground)] mb-2" />
-              <p className="text-sm font-medium mb-3">{t('unlockTitle')}</p>
-              <button className="text-sm bg-orange-500 hover:bg-orange-600 text-white px-4 py-1.5 rounded-lg transition-colors font-medium">
-                {t('upgradePro')}
-              </button>
+            <div className="absolute inset-0 flex flex-col items-center justify-center z-10 rounded-b-2xl"
+              style={{ background: 'linear-gradient(to bottom, transparent 0%, var(--card) 30%)' }}>
+              <div className="mt-16 flex flex-col items-center gap-3 text-center px-6">
+                <div className="p-2.5 rounded-full bg-orange-100 dark:bg-orange-950/40">
+                  <Lock size={18} className="text-orange-500" />
+                </div>
+                <p className="text-sm font-semibold">{t('lockedMessage')}</p>
+                <button
+                  onClick={onUpgradeClick}
+                  className="bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold px-5 py-2 rounded-xl transition-colors"
+                >
+                  {t('lockedCta')}
+                </button>
+              </div>
             </div>
           )}
 
+          {/* Why it exploded */}
           <div className="border-t border-[var(--border)] pt-4">
             <div className="flex items-start gap-2 mb-1">
               <Flame size={14} className="text-orange-500 mt-0.5 shrink-0" />
@@ -96,6 +140,7 @@ export function OutlierCard({ outlier, index, isPro = false }: Props) {
             <p className="text-sm pl-5">{outlier.aiAnalysis.whyExploded}</p>
           </div>
 
+          {/* Pattern */}
           <div>
             <div className="flex items-start gap-2 mb-1">
               <Brain size={14} className="text-blue-500 mt-0.5 shrink-0" />
@@ -104,6 +149,7 @@ export function OutlierCard({ outlier, index, isPro = false }: Props) {
             <p className="text-sm pl-5">{outlier.aiAnalysis.pattern}</p>
           </div>
 
+          {/* How to replicate */}
           <div>
             <div className="flex items-start gap-2 mb-1">
               <Target size={14} className="text-green-500 mt-0.5 shrink-0" />
@@ -119,6 +165,7 @@ export function OutlierCard({ outlier, index, isPro = false }: Props) {
             </ol>
           </div>
 
+          {/* Make this video */}
           <div className="bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-800/30 rounded-xl p-4">
             <div className="flex items-start gap-2 mb-1">
               <Lightbulb size={14} className="text-orange-500 mt-0.5 shrink-0" />
@@ -126,6 +173,68 @@ export function OutlierCard({ outlier, index, isPro = false }: Props) {
             </div>
             <p className="text-sm font-medium pl-5">{outlier.aiAnalysis.newIdea}</p>
           </div>
+
+          {/* Next Video (Copy & Paste) */}
+          {outlier.aiAnalysis.nextVideo && (
+            <div className="border border-[var(--border)] rounded-xl overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-2.5 bg-[var(--muted)] border-b border-[var(--border)]">
+                <div className="flex items-center gap-2">
+                  <Clapperboard size={14} className="text-purple-500" />
+                  <span className="text-xs font-semibold text-[var(--foreground)]">{t('nextVideo')}</span>
+                </div>
+                {showAI && (
+                  <CopyButton textToCopy={nextVideoText} label={t('copyScript')} copiedLabel={t('scriptCopied')} />
+                )}
+              </div>
+              <div className="p-4 space-y-3 text-sm">
+                <div>
+                  <p className="text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wide mb-1">{t('videoTitle')}</p>
+                  <p className="font-semibold text-[var(--foreground)]">"{outlier.aiAnalysis.nextVideo.title}"</p>
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wide mb-1">{t('hook')}</p>
+                  <p className="italic text-[var(--foreground)] border-l-2 border-orange-400 pl-3">{outlier.aiAnalysis.nextVideo.hook}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wide mb-1">{t('structure')}</p>
+                  <ol className="space-y-1">
+                    {outlier.aiAnalysis.nextVideo.structure.map((step, i) => (
+                      <li key={i} className="flex gap-2 text-[var(--foreground)]">
+                        <span className="text-purple-500 font-bold shrink-0">{i + 1}.</span>
+                        <span>{step}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wide mb-1">{t('cta')}</p>
+                  <p className="text-[var(--foreground)] bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800/30 rounded-lg px-3 py-2 text-xs italic">
+                    "{outlier.aiAnalysis.nextVideo.cta}"
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TikTok Ideas */}
+          {outlier.aiAnalysis.tiktokIdeas && outlier.aiAnalysis.tiktokIdeas.length > 0 && (
+            <div className="border border-[var(--border)] rounded-xl overflow-hidden">
+              <div className="flex items-center gap-2 px-4 py-2.5 bg-[var(--muted)] border-b border-[var(--border)]">
+                <Smartphone size={14} className="text-pink-500" />
+                <span className="text-xs font-semibold text-[var(--foreground)]">{t('tiktok')}</span>
+              </div>
+              <div className="p-4 space-y-3">
+                {outlier.aiAnalysis.tiktokIdeas.map((idea, i) => (
+                  <div key={i} className={cn('space-y-1', i > 0 && 'pt-3 border-t border-[var(--border)]')}>
+                    <p className="text-xs font-bold text-pink-600 dark:text-pink-400">
+                      Hook: <span className="italic font-normal">"{idea.hook}"</span>
+                    </p>
+                    <p className="text-xs text-[var(--muted-foreground)]">{idea.concept}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <div className="px-5 pb-5">

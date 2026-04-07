@@ -1,4 +1,4 @@
-import type { Video } from '@/types'
+import type { Video, PerformanceLabel } from '@/types'
 
 const YT_API_KEY = process.env.YOUTUBE_API_KEY!
 const YT_BASE = 'https://www.googleapis.com/youtube/v3'
@@ -85,6 +85,16 @@ async function getKeywordVideos(keyword: string, maxResults = 50): Promise<Video
   }))
 }
 
+function getDaysOld(publishedAt: string): number {
+  return Math.floor((Date.now() - new Date(publishedAt).getTime()) / (1000 * 60 * 60 * 24))
+}
+
+function getPerformanceLabel(multiplier: number, daysOld: number): PerformanceLabel {
+  if (daysOld < 30 && multiplier >= 8) return 'Exploding'
+  if (daysOld < 90 && multiplier >= 4) return 'Spike'
+  return 'Consistent'
+}
+
 export function detectOutliers(videos: Video[], threshold = 3) {
   const withViews = videos.filter((v) => v.views > 0)
   if (withViews.length < 3) return { outliers: [], avgViews: 0 }
@@ -94,7 +104,17 @@ export function detectOutliers(videos: Video[], threshold = 3) {
 
   const outliers = withViews
     .filter((v) => v.views >= minViews)
-    .map((v) => ({ ...v, avgViews, multiplier: v.views / avgViews }))
+    .map((v) => {
+      const daysOld = getDaysOld(v.publishedAt)
+      const multiplier = v.views / avgViews
+      return {
+        ...v,
+        avgViews,
+        multiplier,
+        daysOld,
+        performanceLabel: getPerformanceLabel(multiplier, daysOld),
+      }
+    })
     .sort((a, b) => b.multiplier - a.multiplier)
     .slice(0, 10)
 
