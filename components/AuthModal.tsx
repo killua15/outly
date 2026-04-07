@@ -69,13 +69,38 @@ export function AuthModal({ open, onClose, onSignedIn }: Props) {
       })
       if (verifyErr) throw verifyErr
 
-      // Check Pro status
+      // Check Pro status + activate pending_pro if user paid before having an account
       const { data: { session } } = await supabase.auth.getSession()
       if (session?.user) {
+        const userId = session.user.id
+        const userEmail = session.user.email
+
+        // Check if there's a pending Pro purchase for this email
+        if (userEmail) {
+          const { supabaseAdmin } = await import('@/lib/supabase')
+          const admin = supabaseAdmin()
+          const { data: pending } = await admin
+            .from('pending_pro')
+            .select('stripe_customer_id')
+            .eq('email', userEmail)
+            .single()
+
+          if (pending) {
+            // Activate Pro and clean up pending record
+            await admin
+              .from('profiles')
+              .update({ plan: 'pro', stripe_customer_id: pending.stripe_customer_id })
+              .eq('id', userId)
+            await admin.from('pending_pro').delete().eq('email', userEmail)
+            setProUser()
+            return
+          }
+        }
+
         const { data: profile } = await supabase
           .from('profiles')
           .select('plan')
-          .eq('id', session.user.id)
+          .eq('id', userId)
           .single()
         if (profile?.plan === 'pro') setProUser()
       }

@@ -10,24 +10,27 @@ interface Props {
   open: boolean
   onClose: () => void
   trigger?: 'limit' | 'blur' | 'manual'
+  authToken?: string | null
 }
 
-export function UpgradeModal({ open, onClose, trigger = 'manual' }: Props) {
+export function UpgradeModal({ open, onClose, trigger = 'manual', authToken }: Props) {
   const t = useTranslations('upgrade')
   const [selected, setSelected] = useState<PlanId>('annual')
   const FEATURES = [t('feat1'), t('feat2'), t('feat3'), t('feat4'), t('feat5')]
 
   async function handleCheckout() {
     try {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+      if (authToken) headers['Authorization'] = `Bearer ${authToken}`
+
       const res = await fetch('/api/checkout', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ plan: selected }),
       })
       const { url } = await res.json()
       if (url) window.location.href = url
     } catch {
-      // Direct fallback
       window.location.href = PLANS[selected].paymentLink
     }
   }

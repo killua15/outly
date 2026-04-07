@@ -153,6 +153,8 @@
   "success": {
     "title": "Você agora é Pro!",
     "desc": "Buscas ilimitadas, análise completa de IA em cada outlier. Vá encontrar seu próximo vídeo viral.",
-    "cta": "Começar a analisar →"
+    "cta": "Começar a analisar →",
+    "loginToActivate": "Digite o email usado no pagamento — ativaremos seu acesso Pro na hora.",
+    "loginCta": "Entrar para ativar o Pro →"
   }
 }

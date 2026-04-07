@@ -114,7 +114,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <UpgradeModal open={showUpgrade} onClose={() => setShowUpgrade(false)} trigger={upgradeTrigger} />
+      <UpgradeModal open={showUpgrade} onClose={() => setShowUpgrade(false)} trigger={upgradeTrigger} authToken={authToken} />
       <AuthModal open={showAuth} onClose={() => setShowAuth(false)} />
 
       {/* Nav */}

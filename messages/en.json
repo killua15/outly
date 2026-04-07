@@ -153,6 +153,8 @@
   "success": {
     "title": "You're now on Pro",
     "desc": "Unlimited searches, full AI breakdowns on every outlier. Go find your next viral video.",
-    "cta": "Start analyzing →"
+    "cta": "Start analyzing →",
+    "loginToActivate": "Enter the email you used to pay — we'll activate your Pro access instantly.",
+    "loginCta": "Sign in to activate Pro →"
   }
 }
