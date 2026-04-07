@@ -10,7 +10,7 @@ import { UsageBanner } from '@/components/UsageBanner'
 import { LocaleSwitcher } from '@/components/LocaleSwitcher'
 import { AuthModal } from '@/components/AuthModal'
 import { LoadingSkeleton } from '@/components/LoadingSkeleton'
-import { getUsage, incrementUsage, hasReachedLimit, setProUser } from '@/lib/usage'
+import { getUsage, hasReachedLimit, setProUser, syncRemaining } from '@/lib/usage'
 import { getSupabase } from '@/lib/supabase'
 import { DEMO_RESULT } from '@/lib/demo'
 import type { SearchResult } from '@/types'
@@ -35,6 +35,7 @@ export default function Home() {
   const [bannerKey, setBannerKey] = useState(0)
   const [showAuth, setShowAuth] = useState(false)
   const [userEmail, setUserEmail] = useState<string | null>(null)
+  const [authToken, setAuthToken] = useState<string | null>(null)
 
   useEffect(() => {
     const { isPro: pro } = getUsage()
@@ -54,6 +55,7 @@ export default function Home() {
         const { data: { session } } = await supabase.auth.getSession()
         if (!session?.user) return
         setUserEmail(session.user.email ?? null)
+        setAuthToken(session.access_token ?? null)
         const { data: profile } = await supabase
           .from('profiles')
           .select('plan')
@@ -68,10 +70,11 @@ export default function Home() {
     syncAuth()
   }, [locale])
 
-  function handleResult(data: SearchResult) {
+  function handleResult(data: SearchResult & { remaining?: number }) {
     setError(null)
     setResult(data)
-    incrementUsage()
+    // Sync remaining searches from server response to localStorage
+    if (typeof data.remaining === 'number') syncRemaining(data.remaining)
     setBannerKey((k) => k + 1)
     setTimeout(() => {
       document.getElementById('results')?.scrollIntoView({ behavior: 'smooth' })
@@ -186,9 +189,11 @@ export default function Home() {
           <SearchInput
             onResult={handleResult}
             onError={handleError}
+            onLimitReached={() => openUpgrade('limit')}
             isLoading={isLoading}
             setIsLoading={setIsLoading}
             onBeforeSearch={handleSearchAttempt}
+            authToken={authToken}
           />
 
           {!isPro && (

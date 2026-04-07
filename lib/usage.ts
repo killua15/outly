@@ -50,4 +50,16 @@ export function hasReachedLimit(): boolean {
   return !isPro && count >= FREE_LIMIT
 }
 
+/**
+ * Sync the remaining count from the server response.
+ * Keeps localStorage in sync without trusting client-side counting.
+ */
+export function syncRemaining(remaining: number): void {
+  if (typeof window === 'undefined') return
+  const current = getUsage()
+  if (current.isPro) return
+  const newCount = Math.max(0, FREE_LIMIT - remaining)
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...current, count: newCount, date: today() }))
+}
+
 export { FREE_LIMIT }

@@ -9,14 +9,16 @@ import { useTranslations, useLocale } from 'next-intl'
 interface Props {
   onResult: (result: SearchResult) => void
   onError: (error: string) => void
+  onLimitReached: () => void
   isLoading: boolean
   setIsLoading: (v: boolean) => void
   onBeforeSearch?: () => boolean
+  authToken?: string | null
 }
 
 const EXAMPLES = ['MrBeast', '@veritasium', 'home workout routine', 'crypto investing 2024']
 
-export function SearchInput({ onResult, onError, isLoading, setIsLoading, onBeforeSearch }: Props) {
+export function SearchInput({ onResult, onError, onLimitReached, isLoading, setIsLoading, onBeforeSearch, authToken }: Props) {
   const t = useTranslations('search')
   const locale = useLocale()
   const [query, setQuery] = useState('')
@@ -29,13 +31,22 @@ export function SearchInput({ onResult, onError, isLoading, setIsLoading, onBefo
 
     setIsLoading(true)
     try {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+      if (authToken) headers['Authorization'] = `Bearer ${authToken}`
+
       const res = await fetch('/api/analyze', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ query: value, locale }),
       })
 
       const data = await res.json()
+
+      if (res.status === 429) {
+        onLimitReached()
+        return
+      }
+
       if (!res.ok) throw new Error(data.error || 'Analysis failed')
       onResult(data)
     } catch (err) {
