@@ -1,19 +1,38 @@
-import Stripe from 'stripe'
-
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? 'placeholder', {
-  apiVersion: '2025-03-31.basil',
-})
-
 export const PLANS = {
-  pro: {
-    name: 'Outly Pro',
+  monthly: {
+    id: 'monthly',
+    label: 'Monthly',
     price: 9,
-    priceId: process.env.STRIPE_PRO_PRICE_ID!,
-    features: [
-      'Unlimited searches per day',
-      'Full AI breakdown on all outliers',
-      'All 7 niche explorer pages',
-      'Priority analysis (no queue)',
-    ],
+    period: '/mo',
+    badge: null,
+    description: 'Billed monthly',
+    paymentLink: 'https://buy.stripe.com/4gM3cu3DO7iJ02FbkNfIs0c',
+    priceId: 'price_1TJNfFA2rVBUxBrS8ygvAl5n',
   },
-}
+  annual: {
+    id: 'annual',
+    label: 'Annual',
+    price: 86,
+    period: '/yr',
+    badge: 'Save 20%',
+    description: 'Billed yearly · $7.17/mo',
+    paymentLink: 'https://buy.stripe.com/00wbJ0b6g1YpbLn4WpfIs0d',
+    priceId: 'price_1TJNfFA2rVBUxBrSqp4klJF4',
+  },
+  lifetime: {
+    id: 'lifetime',
+    label: 'Lifetime',
+    price: 97,
+    period: '',
+    badge: 'Best value',
+    description: 'Pay once, use forever',
+    paymentLink: 'https://buy.stripe.com/eVq9AS8Y8fPfdTv88BfIs0e',
+    priceId: 'price_1TJNfGA2rVBUxBrSrIJFIedM',
+  },
+} as const
+
+export type PlanId = keyof typeof PLANS
+
+// Note: to enable recurring billing for monthly/annual plans,
+// go to Stripe Dashboard → Products → Outly Pro → and create
+// recurring prices, then update the priceId fields above.

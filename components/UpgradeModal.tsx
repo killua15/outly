@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { X, Zap, CheckCircle, Loader2 } from 'lucide-react'
+import { X, Zap, CheckCircle, Star } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { PLANS, type PlanId } from '@/lib/stripe'
 
 interface Props {
   open: boolean
@@ -12,22 +13,27 @@ interface Props {
 
 const FEATURES = [
   'Unlimited searches per day',
-  'Full AI breakdown on all outliers',
+  'Full AI breakdown on every outlier',
   'Step-by-step replication guides',
+  'Shareable analysis links',
   '7 niche explorer pages',
 ]
 
 export function UpgradeModal({ open, onClose, trigger = 'manual' }: Props) {
-  const [loading, setLoading] = useState(false)
+  const [selected, setSelected] = useState<PlanId>('annual')
 
   async function handleCheckout() {
-    setLoading(true)
     try {
-      const res = await fetch('/api/checkout', { method: 'POST' })
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan: selected }),
+      })
       const { url } = await res.json()
       if (url) window.location.href = url
     } catch {
-      setLoading(false)
+      // Direct fallback
+      window.location.href = PLANS[selected].paymentLink
     }
   }
 
@@ -35,17 +41,9 @@ export function UpgradeModal({ open, onClose, trigger = 'manual' }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
 
-      {/* Modal */}
-      <div className={cn(
-        'relative w-full max-w-sm rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-2xl',
-        'animate-in fade-in zoom-in-95 duration-200'
-      )}>
+      <div className="relative w-full max-w-sm rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-2xl">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
@@ -54,39 +52,76 @@ export function UpgradeModal({ open, onClose, trigger = 'manual' }: Props) {
         </button>
 
         {/* Header */}
-        <div className="text-center mb-6">
+        <div className="text-center mb-5">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-orange-100 dark:bg-orange-950/40 mb-3">
             <Zap size={22} className="text-orange-500" />
           </div>
-
           {trigger === 'limit' ? (
             <>
               <h2 className="text-xl font-bold mb-1">You've used your 3 free searches</h2>
-              <p className="text-sm text-[var(--muted-foreground)]">
-                Upgrade to Pro for unlimited outlier analysis.
-              </p>
+              <p className="text-sm text-[var(--muted-foreground)]">Upgrade for unlimited outlier analysis.</p>
             </>
           ) : (
             <>
               <h2 className="text-xl font-bold mb-1">Unlock full AI breakdown</h2>
-              <p className="text-sm text-[var(--muted-foreground)]">
-                See why every outlier exploded — and exactly how to replicate it.
-              </p>
+              <p className="text-sm text-[var(--muted-foreground)]">Why every outlier exploded — and how to replicate it.</p>
             </>
           )}
         </div>
 
-        {/* Price */}
-        <div className="text-center mb-5">
-          <span className="text-4xl font-bold">$9</span>
-          <span className="text-[var(--muted-foreground)] text-sm">/month</span>
+        {/* Plan selector */}
+        <div className="space-y-2 mb-5">
+          {(Object.values(PLANS) as typeof PLANS[PlanId][]).map((plan) => (
+            <button
+              key={plan.id}
+              onClick={() => setSelected(plan.id as PlanId)}
+              className={cn(
+                'w-full flex items-center justify-between px-4 py-3 rounded-xl border-2 transition-all text-left',
+                selected === plan.id
+                  ? 'border-orange-500 bg-orange-50 dark:bg-orange-950/20'
+                  : 'border-[var(--border)] hover:border-orange-300'
+              )}
+            >
+              <div className="flex items-center gap-3">
+                <div className={cn(
+                  'w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0',
+                  selected === plan.id ? 'border-orange-500' : 'border-[var(--muted-foreground)]'
+                )}>
+                  {selected === plan.id && (
+                    <div className="w-2 h-2 rounded-full bg-orange-500" />
+                  )}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-sm">{plan.label}</span>
+                    {plan.badge && (
+                      <span className={cn(
+                        'text-xs font-bold px-1.5 py-0.5 rounded-full',
+                        plan.id === 'lifetime'
+                          ? 'bg-purple-100 text-purple-700 dark:bg-purple-950/40 dark:text-purple-400'
+                          : 'bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400'
+                      )}>
+                        {plan.id === 'lifetime' && <Star size={9} className="inline mr-0.5" />}
+                        {plan.badge}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-[var(--muted-foreground)]">{plan.description}</p>
+                </div>
+              </div>
+              <div className="text-right shrink-0">
+                <span className="font-bold text-lg">${plan.price}</span>
+                <span className="text-xs text-[var(--muted-foreground)]">{plan.period}</span>
+              </div>
+            </button>
+          ))}
         </div>
 
         {/* Features */}
-        <ul className="space-y-2 mb-6">
+        <ul className="space-y-1.5 mb-5">
           {FEATURES.map((f) => (
             <li key={f} className="flex items-center gap-2 text-sm">
-              <CheckCircle size={15} className="text-green-500 shrink-0" />
+              <CheckCircle size={14} className="text-green-500 shrink-0" />
               {f}
             </li>
           ))}
@@ -95,25 +130,15 @@ export function UpgradeModal({ open, onClose, trigger = 'manual' }: Props) {
         {/* CTA */}
         <button
           onClick={handleCheckout}
-          disabled={loading}
-          className={cn(
-            'w-full py-3 rounded-xl font-semibold text-white bg-orange-500 hover:bg-orange-600',
-            'transition-all active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed',
-            'flex items-center justify-center gap-2'
-          )}
+          className="w-full py-3 rounded-xl font-semibold text-white bg-orange-500 hover:bg-orange-600 transition-all active:scale-95 flex items-center justify-center gap-2"
         >
-          {loading ? (
-            <>
-              <Loader2 size={16} className="animate-spin" />
-              Redirecting...
-            </>
-          ) : (
-            'Upgrade to Pro →'
-          )}
+          Get Outly Pro
+          {selected === 'lifetime' ? ' — $97 forever' : selected === 'annual' ? ' — $86/yr' : ' — $9/mo'}
         </button>
 
         <p className="text-center text-xs text-[var(--muted-foreground)] mt-3">
-          Cancel anytime · Secure checkout via Stripe
+          Secure checkout via Stripe
+          {selected !== 'lifetime' && ' · Cancel anytime'}
         </p>
       </div>
     </div>
