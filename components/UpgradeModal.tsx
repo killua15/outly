@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { X, Zap, CheckCircle, Star } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { PLANS, type PlanId } from '@/lib/stripe'
+import { useTranslations } from 'next-intl'
 
 interface Props {
   open: boolean
@@ -11,16 +12,10 @@ interface Props {
   trigger?: 'limit' | 'blur' | 'manual'
 }
 
-const FEATURES = [
-  'Unlimited searches per day',
-  'Full AI breakdown on every outlier',
-  'Step-by-step replication guides',
-  'Shareable analysis links',
-  '7 niche explorer pages',
-]
-
 export function UpgradeModal({ open, onClose, trigger = 'manual' }: Props) {
+  const t = useTranslations('upgrade')
   const [selected, setSelected] = useState<PlanId>('annual')
+  const FEATURES = [t('feat1'), t('feat2'), t('feat3'), t('feat4'), t('feat5')]
 
   async function handleCheckout() {
     try {
@@ -58,13 +53,13 @@ export function UpgradeModal({ open, onClose, trigger = 'manual' }: Props) {
           </div>
           {trigger === 'limit' ? (
             <>
-              <h2 className="text-xl font-bold mb-1">You've used your 3 free searches</h2>
-              <p className="text-sm text-[var(--muted-foreground)]">Upgrade for unlimited outlier analysis.</p>
+              <h2 className="text-xl font-bold mb-1">{t('limitTitle')}</h2>
+              <p className="text-sm text-[var(--muted-foreground)]">{t('limitDesc')}</p>
             </>
           ) : (
             <>
-              <h2 className="text-xl font-bold mb-1">Unlock full AI breakdown</h2>
-              <p className="text-sm text-[var(--muted-foreground)]">Why every outlier exploded — and how to replicate it.</p>
+              <h2 className="text-xl font-bold mb-1">{t('defaultTitle')}</h2>
+              <p className="text-sm text-[var(--muted-foreground)]">{t('defaultDesc')}</p>
             </>
           )}
         </div>
@@ -132,13 +127,13 @@ export function UpgradeModal({ open, onClose, trigger = 'manual' }: Props) {
           onClick={handleCheckout}
           className="w-full py-3 rounded-xl font-semibold text-white bg-orange-500 hover:bg-orange-600 transition-all active:scale-95 flex items-center justify-center gap-2"
         >
-          Get Outly Pro
-          {selected === 'lifetime' ? ' — $97 forever' : selected === 'annual' ? ' — $86/yr' : ' — $9/mo'}
+          {t('cta')}
+          {selected === 'lifetime' ? t('ctaLifetime') : selected === 'annual' ? t('ctaAnnual') : t('ctaMonthly')}
         </button>
 
         <p className="text-center text-xs text-[var(--muted-foreground)] mt-3">
-          Secure checkout via Stripe
-          {selected !== 'lifetime' && ' · Cancel anytime'}
+          {t('stripe')}
+          {selected !== 'lifetime' && ` ${t('cancel')}`}
         </p>
       </div>
     </div>

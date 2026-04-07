@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 import { Search, ArrowRight, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { SearchResult } from '@/types'
+import { useTranslations } from 'next-intl'
 
 interface Props {
   onResult: (result: SearchResult) => void
@@ -16,6 +17,7 @@ interface Props {
 const EXAMPLES = ['MrBeast', '@veritasium', 'home workout routine', 'crypto investing 2024']
 
 export function SearchInput({ onResult, onError, isLoading, setIsLoading, onBeforeSearch }: Props) {
+  const t = useTranslations('search')
   const [query, setQuery] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -55,7 +57,7 @@ export function SearchInput({ onResult, onError, isLoading, setIsLoading, onBefo
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
-          placeholder="YouTube channel URL, @handle, or keyword..."
+          placeholder={t('placeholder')}
           className={cn(
             'flex-1 bg-transparent pl-11 pr-4 py-4 text-base outline-none',
             'placeholder:text-[var(--muted-foreground)]'
@@ -76,7 +78,7 @@ export function SearchInput({ onResult, onError, isLoading, setIsLoading, onBefo
             <Loader2 size={16} className="animate-spin" />
           ) : (
             <>
-              Analyze
+              {t('analyze')}
               <ArrowRight size={14} />
             </>
           )}

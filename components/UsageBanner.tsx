@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { getRemainingSearches, FREE_LIMIT } from '@/lib/usage'
 import { Zap } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useTranslations } from 'next-intl'
 
 interface Props {
   onUpgradeClick: () => void
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export function UsageBanner({ onUpgradeClick, refreshKey }: Props) {
+  const t = useTranslations('banner')
   const [remaining, setRemaining] = useState<number | null>(null)
 
   useEffect(() => {
@@ -40,8 +42,8 @@ export function UsageBanner({ onUpgradeClick, refreshKey }: Props) {
             remaining === 0 ? 'text-red-600 dark:text-red-400' : 'text-[var(--foreground)]'
           )}>
             {remaining === 0
-              ? 'Daily limit reached'
-              : `${remaining} free search${remaining !== 1 ? 'es' : ''} left today`}
+              ? t('limitReached')
+              : t('searchesLeft', { remaining })}
           </span>
           <span className="text-xs text-[var(--muted-foreground)]">{used}/{FREE_LIMIT}</span>
         </div>
@@ -61,7 +63,7 @@ export function UsageBanner({ onUpgradeClick, refreshKey }: Props) {
         className="flex items-center gap-1 text-xs font-semibold text-orange-600 dark:text-orange-400 hover:text-orange-700 transition-colors shrink-0"
       >
         <Zap size={12} />
-        Go Pro
+        {t('goPro')}
       </button>
     </div>
   )

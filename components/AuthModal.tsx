@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { getSupabase } from '@/lib/supabase'
 import { X, Mail, Loader2, CheckCircle } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 interface Props {
   open: boolean
@@ -14,6 +15,8 @@ export function AuthModal({ open, onClose }: Props) {
   const [loading, setLoading] = useState(false)
   const [sent, setSent] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  const t = useTranslations('auth')
 
   if (!open) return null
 
@@ -34,7 +37,7 @@ export function AuthModal({ open, onClose }: Props) {
       if (authErr) throw authErr
       setSent(true)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to send link')
+      setError(err instanceof Error ? err.message : t('error'))
     } finally {
       setLoading(false)
     }
@@ -53,27 +56,25 @@ export function AuthModal({ open, onClose }: Props) {
         {sent ? (
           <div className="text-center py-4">
             <CheckCircle size={40} className="text-green-500 mx-auto mb-3" />
-            <h2 className="font-bold text-lg mb-1">Check your email</h2>
+            <h2 className="font-bold text-lg mb-1">{t('sentTitle')}</h2>
             <p className="text-sm text-[var(--muted-foreground)]">
-              We sent a login link to <strong>{email}</strong>. Click it to sign in — your Pro access will sync automatically.
+              {t('sentDesc', { email })}
             </p>
           </div>
         ) : (
           <>
             <div className="flex items-center gap-2 mb-1">
               <Mail size={18} className="text-orange-500" />
-              <h2 className="font-bold text-lg">Sign in to Outly</h2>
+              <h2 className="font-bold text-lg">{t('title')}</h2>
             </div>
-            <p className="text-sm text-[var(--muted-foreground)] mb-5">
-              Enter your email and we&apos;ll send you a magic link. No password needed.
-            </p>
+            <p className="text-sm text-[var(--muted-foreground)] mb-5">{t('subtitle')}</p>
 
             <form onSubmit={handleSubmit} className="space-y-3">
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
+                placeholder={t('placeholder')}
                 required
                 className="w-full px-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--background)] text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/40"
               />
@@ -86,7 +87,7 @@ export function AuthModal({ open, onClose }: Props) {
                 className="w-full flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 disabled:opacity-60 text-white font-semibold py-2.5 rounded-xl text-sm transition-colors"
               >
                 {loading ? <Loader2 size={15} className="animate-spin" /> : null}
-                {loading ? 'Sending...' : 'Send magic link'}
+                {loading ? t('sending') : t('sendLink')}
               </button>
             </form>
           </>

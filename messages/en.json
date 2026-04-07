@@ -1,0 +1,108 @@
+{
+  "nav": {
+    "exploreNiches": "Explore niches",
+    "goPro": "Go Pro — $9/mo",
+    "signIn": "Sign in",
+    "signOut": "Sign out"
+  },
+  "home": {
+    "badge": "Outlier Finder for YouTube",
+    "title1": "Find videos that",
+    "titleHighlight": "explode in views",
+    "title2": "in any niche",
+    "subtitle": "Enter a YouTube channel or keyword. Get the outlier videos with AI-powered breakdown on",
+    "subtitleBold": "exactly what to make next.",
+    "analyzing": "Analyzing videos...",
+    "exploreNiches": "Or explore by niche",
+    "statThreshold": "Minimum outlier threshold",
+    "statTime": "Time to first insight",
+    "statAi": "Powered breakdown",
+    "share": "Share this analysis",
+    "copied": "Copied!",
+    "emailTitle": "Get weekly viral video breakdowns",
+    "emailSubtitle": "Real outlier analyses, patterns, and ideas — free, every Friday.",
+    "footerText": "© 2026 Outly. Built for YouTube creators.",
+    "faqTitle": "How to find viral YouTube video ideas",
+    "faq1q": "What is a YouTube outlier video?",
+    "faq1a": "An outlier video is one that performs significantly above the channel's average — typically 3x or more views. These videos reveal what content resonates most with an audience and what patterns can be replicated.",
+    "faq2q": "How does Outly find viral YouTube video ideas?",
+    "faq2a": "Outly fetches the last 50 videos from any channel, calculates the average views, and flags videos that exceed 3x the average. It then uses AI to analyze why each outlier performed so well and generates a step-by-step replication guide.",
+    "faq3q": "Can I use Outly for YouTube SEO?",
+    "faq3a": "Yes. By identifying what content goes viral in your niche, you can reverse-engineer successful titles, hooks, and topics — which is the most effective form of YouTube SEO.",
+    "faq4q": "What's the difference between free and Pro?",
+    "faq4a": "Free users get 3 searches per day and see the first AI breakdown. Pro users ($9/mo) get unlimited searches, full AI analysis on all outliers, and shareable analysis links."
+  },
+  "search": {
+    "placeholder": "YouTube channel URL, @handle, or keyword...",
+    "analyze": "Analyze"
+  },
+  "banner": {
+    "limitReached": "Daily limit reached",
+    "searchesLeft": "{remaining, plural, one {# free search left today} other {# free searches left today}}",
+    "goPro": "Go Pro"
+  },
+  "upgrade": {
+    "limitTitle": "You've used your 3 free searches",
+    "limitDesc": "Upgrade for unlimited outlier analysis.",
+    "defaultTitle": "Unlock full AI breakdown",
+    "defaultDesc": "Why every outlier exploded — and how to replicate it.",
+    "cta": "Get Outly Pro",
+    "ctaLifetime": " — $97 forever",
+    "ctaAnnual": " — $86/yr",
+    "ctaMonthly": " — $9/mo",
+    "stripe": "Secure checkout via Stripe",
+    "cancel": "· Cancel anytime",
+    "feat1": "Unlimited searches per day",
+    "feat2": "Full AI breakdown on every outlier",
+    "feat3": "Step-by-step replication guides",
+    "feat4": "Shareable analysis links",
+    "feat5": "7 niche explorer pages"
+  },
+  "results": {
+    "outliersFound": "{count} outliers",
+    "found": "found",
+    "fromVideos": "from {count} videos analyzed",
+    "avgViews": "avg {views} views",
+    "noOutliersTitle": "No outliers found",
+    "noOutliersDesc": "This channel/keyword has very consistent performance. Try a larger channel or a broader keyword.",
+    "unlockTitle": "🔓 Unlock full AI analysis for all {count} outliers",
+    "unlockDesc": "See complete breakdown: why each video exploded + step-by-step replication guide",
+    "upgradeCta": "Upgrade to Pro — $9/mo"
+  },
+  "card": {
+    "whyExploded": "Why it exploded",
+    "pattern": "Pattern",
+    "howToReplicate": "How to replicate",
+    "makeThisVideo": "Make this video now",
+    "unlockTitle": "Unlock full AI analysis",
+    "upgradePro": "Upgrade to Pro →",
+    "generating": "Generating AI analysis..."
+  },
+  "auth": {
+    "title": "Sign in to Outly",
+    "subtitle": "Enter your email and we'll send you a magic link. No password needed.",
+    "placeholder": "you@example.com",
+    "sendLink": "Send magic link",
+    "sending": "Sending...",
+    "sentTitle": "Check your email",
+    "sentDesc": "We sent a login link to {email}. Click it to sign in — your Pro access will sync automatically.",
+    "error": "Failed to send link"
+  },
+  "email": {
+    "done": "You're in! Check your inbox for tips.",
+    "placeholder": "your@email.com",
+    "getTips": "Get tips",
+    "tryAgain": "Try again"
+  },
+  "analysis": {
+    "analysisFor": "Analysis for",
+    "outliersFrom": "{count} outliers from {total} videos",
+    "newAnalysis": "New analysis",
+    "analyzeAnother": "Analyze another channel →"
+  },
+  "success": {
+    "title": "You're now on Pro",
+    "desc": "Unlimited searches, full AI breakdowns on every outlier. Go find your next viral video.",
+    "cta": "Start analyzing →"
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "nav": {
+    "exploreNiches": "Explorar nichos",
+    "goPro": "Hazte Pro — $9/mes",
+    "signIn": "Iniciar sesión",
+    "signOut": "Cerrar sesión"
+  },
+  "home": {
+    "badge": "Buscador de Outliers en YouTube",
+    "title1": "Encuentra videos que",
+    "titleHighlight": "explotan en vistas",
+    "title2": "en cualquier nicho",
+    "subtitle": "Ingresa un canal de YouTube o palabra clave. Obtén los videos outlier con análisis de IA sobre",
+    "subtitleBold": "exactamente qué crear después.",
+    "analyzing": "Analizando videos...",
+    "exploreNiches": "O explora por nicho",
+    "statThreshold": "Umbral mínimo de outlier",
+    "statTime": "Tiempo al primer insight",
+    "statAi": "Análisis con IA",
+    "share": "Compartir este análisis",
+    "copied": "¡Copiado!",
+    "emailTitle": "Recibe análisis virales semanales",
+    "emailSubtitle": "Análisis de outliers reales, patrones e ideas — gratis, cada viernes.",
+    "footerText": "© 2026 Outly. Hecho para creadores de YouTube.",
+    "faqTitle": "Cómo encontrar ideas de videos virales en YouTube",
+    "faq1q": "¿Qué es un video outlier de YouTube?",
+    "faq1a": "Un video outlier es aquel que supera significativamente el promedio del canal, típicamente 3x o más vistas. Estos videos revelan qué contenido resuena más con la audiencia y qué patrones se pueden replicar.",
+    "faq2q": "¿Cómo encuentra Outly ideas de videos virales?",
+    "faq2a": "Outly obtiene los últimos 50 videos de cualquier canal, calcula el promedio de vistas y señala los videos que superan 3x el promedio. Luego usa IA para analizar por qué cada outlier funcionó tan bien y genera una guía paso a paso para replicarlo.",
+    "faq3q": "¿Puedo usar Outly para SEO en YouTube?",
+    "faq3a": "Sí. Al identificar qué contenido se vuelve viral en tu nicho, puedes hacer ingeniería inversa de títulos, ganchos y temas exitosos — que es la forma más efectiva de SEO en YouTube.",
+    "faq4q": "¿Cuál es la diferencia entre gratis y Pro?",
+    "faq4a": "Los usuarios gratuitos obtienen 3 búsquedas por día y ven el primer análisis de IA. Los usuarios Pro ($9/mes) obtienen búsquedas ilimitadas, análisis completo de IA en todos los outliers y enlaces compartibles."
+  },
+  "search": {
+    "placeholder": "URL del canal, @usuario o palabra clave...",
+    "analyze": "Analizar"
+  },
+  "banner": {
+    "limitReached": "Límite diario alcanzado",
+    "searchesLeft": "{remaining, plural, one {# búsqueda gratis hoy} other {# búsquedas gratis hoy}}",
+    "goPro": "Hazte Pro"
+  },
+  "upgrade": {
+    "limitTitle": "Usaste tus 3 búsquedas gratuitas",
+    "limitDesc": "Actualiza para análisis ilimitados.",
+    "defaultTitle": "Desbloquea el análisis completo de IA",
+    "defaultDesc": "Por qué cada outlier explotó y cómo replicarlo.",
+    "cta": "Obtener Outly Pro",
+    "ctaLifetime": " — $97 de por vida",
+    "ctaAnnual": " — $86/año",
+    "ctaMonthly": " — $9/mes",
+    "stripe": "Pago seguro con Stripe",
+    "cancel": "· Cancela cuando quieras",
+    "feat1": "Búsquedas ilimitadas por día",
+    "feat2": "Análisis completo de IA en cada outlier",
+    "feat3": "Guías de replicación paso a paso",
+    "feat4": "Enlaces de análisis compartibles",
+    "feat5": "7 páginas de exploración por nicho"
+  },
+  "results": {
+    "outliersFound": "{count} outliers",
+    "found": "encontrados",
+    "fromVideos": "de {count} videos analizados",
+    "avgViews": "promedio {views} vistas",
+    "noOutliersTitle": "Sin outliers encontrados",
+    "noOutliersDesc": "Este canal/keyword tiene un rendimiento muy consistente. Intenta con un canal más grande o una palabra clave más amplia.",
+    "unlockTitle": "🔓 Desbloquea el análisis completo para los {count} outliers",
+    "unlockDesc": "Ve el desglose completo: por qué explotó cada video + guía de replicación paso a paso",
+    "upgradeCta": "Actualizar a Pro — $9/mes"
+  },
+  "card": {
+    "whyExploded": "Por qué explotó",
+    "pattern": "Patrón",
+    "howToReplicate": "Cómo replicarlo",
+    "makeThisVideo": "Crea este video ahora",
+    "unlockTitle": "Desbloquea el análisis completo",
+    "upgradePro": "Actualizar a Pro →",
+    "generating": "Generando análisis de IA..."
+  },
+  "auth": {
+    "title": "Inicia sesión en Outly",
+    "subtitle": "Ingresa tu email y te enviamos un enlace mágico. Sin contraseña.",
+    "placeholder": "tu@email.com",
+    "sendLink": "Enviar enlace mágico",
+    "sending": "Enviando...",
+    "sentTitle": "Revisa tu email",
+    "sentDesc": "Enviamos un enlace de inicio de sesión a {email}. Haz clic para entrar — tu acceso Pro se sincronizará automáticamente.",
+    "error": "No se pudo enviar el enlace"
+  },
+  "email": {
+    "done": "¡Listo! Revisa tu bandeja los viernes.",
+    "placeholder": "tu@email.com",
+    "getTips": "Suscribirme",
+    "tryAgain": "Intentar de nuevo"
+  },
+  "analysis": {
+    "analysisFor": "Análisis para",
+    "outliersFrom": "{count} outliers de {total} videos",
+    "newAnalysis": "Nuevo análisis",
+    "analyzeAnother": "Analizar otro canal →"
+  },
+  "success": {
+    "title": "¡Ya eres Pro!",
+    "desc": "Búsquedas ilimitadas, análisis completo de IA en cada outlier. Ve a encontrar tu próximo video viral.",
+    "cta": "Empezar a analizar →"
+  }
+}

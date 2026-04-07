@@ -3,12 +3,14 @@
 import { useState } from 'react'
 import { Mail, ArrowRight, Check, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useTranslations } from 'next-intl'
 
 interface Props {
   className?: string
 }
 
 export function EmailCapture({ className }: Props) {
+  const t = useTranslations('email')
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
 
@@ -35,7 +37,7 @@ export function EmailCapture({ className }: Props) {
     return (
       <div className={cn('flex items-center gap-2 text-sm text-green-600 dark:text-green-400', className)}>
         <Check size={16} />
-        <span>You're in! Check your inbox for tips.</span>
+        <span>{t('done')}</span>
       </div>
     )
   }
@@ -48,7 +50,7 @@ export function EmailCapture({ className }: Props) {
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="your@email.com"
+          placeholder={t('placeholder')}
           required
           className={cn(
             'w-full pl-8 pr-3 py-2 text-sm rounded-xl border border-[var(--border)] bg-[var(--card)]',
@@ -68,9 +70,9 @@ export function EmailCapture({ className }: Props) {
         {status === 'loading' ? (
           <Loader2 size={14} className="animate-spin" />
         ) : status === 'error' ? (
-          'Try again'
+          t('tryAgain')
         ) : (
-          <>Get tips <ArrowRight size={13} /></>
+          <>{t('getTips')} <ArrowRight size={13} /></>
         )}
       </button>
     </form>
