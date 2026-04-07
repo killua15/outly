@@ -8,17 +8,40 @@ export interface Video {
 }
 
 export type PerformanceLabel = 'Exploding' | 'Spike' | 'Consistent'
+export type ScoreLabel = 'Low' | 'Medium' | 'High'
+
+export interface ScoreBreakdown {
+  hook: number
+  topic: number
+  repeatability: number
+  emotion: number
+}
+
+export interface ViralScore {
+  score: number
+  breakdown: ScoreBreakdown
+  label: ScoreLabel
+  reason: string
+}
 
 export interface NextVideo {
   title: string
   hook: string
   structure: string[]
   cta: string
+  viralScore?: ViralScore
 }
 
 export interface TikTokIdea {
   hook: string
   concept: string
+}
+
+export interface ImprovedIdea {
+  title: string
+  hook: string
+  concept: string
+  viralScore: ViralScore
 }
 
 export interface AIAnalysis {
@@ -28,6 +51,7 @@ export interface AIAnalysis {
   newIdea: string
   nextVideo?: NextVideo
   tiktokIdeas?: TikTokIdea[]
+  improvedIdea?: ImprovedIdea
 }
 
 export interface OutlierVideo extends Video {

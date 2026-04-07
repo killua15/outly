@@ -3,9 +3,10 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import { formatViews, formatMultiplier, cn } from '@/lib/utils'
-import type { OutlierVideo } from '@/types'
-import { Flame, Brain, Target, Lightbulb, ExternalLink, Lock, Clapperboard, Smartphone, Copy, Check, Zap } from 'lucide-react'
+import type { ImprovedIdea, OutlierVideo, ViralScore } from '@/types'
+import { Flame, Brain, Target, Lightbulb, ExternalLink, Lock, Clapperboard, Smartphone, Copy, Check, Zap, Sparkles, TrendingUp } from 'lucide-react'
 import { useTranslations } from 'next-intl'
+import { useLocale } from 'next-intl'
 
 interface Props {
   outlier: OutlierVideo
@@ -32,6 +33,72 @@ function getMultiplierColor(m: number) {
   return MULTIPLIER_COLORS.low
 }
 
+function getScoreColor(score: number) {
+  if (score >= 8) return 'text-green-600 dark:text-green-400'
+  if (score >= 5) return 'text-yellow-600 dark:text-yellow-400'
+  return 'text-red-600 dark:text-red-400'
+}
+
+function getScoreBarColor(score: number) {
+  if (score >= 8) return 'bg-green-500'
+  if (score >= 5) return 'bg-yellow-500'
+  return 'bg-red-500'
+}
+
+function ViralScoreBadge({ vs, t }: { vs: ViralScore; t: ReturnType<typeof useTranslations<'card'>> }) {
+  const labelKey = vs.label === 'High' ? 'viralScoreHigh' : vs.label === 'Medium' ? 'viralScoreMedium' : 'viralScoreLow'
+  return (
+    <div className="border border-[var(--border)] rounded-xl p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <TrendingUp size={14} className="text-purple-500 shrink-0" />
+          <span className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wide">{t('viralScore')}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className={cn('text-2xl font-black tabular-nums', getScoreColor(vs.score))}>
+            {vs.score.toFixed(1)}
+          </span>
+          <span className="text-xs text-[var(--muted-foreground)]">/10</span>
+        </div>
+      </div>
+
+      {/* Score bars */}
+      <div className="space-y-1.5">
+        {([
+          ['hook', vs.breakdown.hook],
+          ['topic', vs.breakdown.topic],
+          ['repeatability', vs.breakdown.repeatability],
+          ['emotion', vs.breakdown.emotion],
+        ] as [string, number][]).map(([key, val]) => (
+          <div key={key} className="flex items-center gap-2">
+            <span className="text-xs text-[var(--muted-foreground)] w-20 capitalize shrink-0">{key}</span>
+            <div className="flex-1 h-1.5 bg-[var(--muted)] rounded-full overflow-hidden">
+              <div
+                className={cn('h-full rounded-full transition-all', getScoreBarColor(val))}
+                style={{ width: `${val * 10}%` }}
+              />
+            </div>
+            <span className="text-xs font-semibold w-4 text-right tabular-nums">{val}</span>
+          </div>
+        ))}
+      </div>
+
+      <p className="text-xs text-[var(--muted-foreground)] italic border-t border-[var(--border)] pt-2">{vs.reason}</p>
+
+      <div className="flex justify-end">
+        <span className={cn(
+          'text-xs font-bold px-2 py-0.5 rounded-full',
+          vs.label === 'High' ? 'bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400'
+          : vs.label === 'Medium' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-950/40 dark:text-yellow-400'
+          : 'bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400'
+        )}>
+          {t(labelKey as never)}
+        </span>
+      </div>
+    </div>
+  )
+}
+
 function CopyButton({ textToCopy, label, copiedLabel }: { textToCopy: string; label: string; copiedLabel: string }) {
   const [copied, setCopied] = useState(false)
   async function handleCopy() {
@@ -52,17 +119,44 @@ function CopyButton({ textToCopy, label, copiedLabel }: { textToCopy: string; la
 
 export function OutlierCard({ outlier, index, isPro = false, onUpgradeClick }: Props) {
   const t = useTranslations('card')
+  const locale = useLocale()
   const showAI = isPro || index === 0
   const isDemo = outlier.id.startsWith('demo_')
   const videoUrl = isDemo ? '#' : `https://www.youtube.com/watch?v=${outlier.id}`
+
+  const [improving, setImproving] = useState(false)
+  const [improved, setImproved] = useState<ImprovedIdea | null>(null)
 
   const labelKey = outlier.performanceLabel
     ? ({ Exploding: 'labelExploding', Spike: 'labelSpike', Consistent: 'labelConsistent' }[outlier.performanceLabel])
     : null
 
-  const nextVideoText = outlier.aiAnalysis?.nextVideo
+  const activeNextVideo = improved ?? outlier.aiAnalysis?.nextVideo
+  const nextVideoText = activeNextVideo
+    ? `Title: ${activeNextVideo.title}\n\nHook: ${'hook' in activeNextVideo ? activeNextVideo.hook : outlier.aiAnalysis?.nextVideo?.hook}\n\nConcept: ${'concept' in activeNextVideo ? activeNextVideo.concept : ''}`
+    : outlier.aiAnalysis?.nextVideo
     ? `Title: ${outlier.aiAnalysis.nextVideo.title}\n\nHook: ${outlier.aiAnalysis.nextVideo.hook}\n\nStructure:\n${outlier.aiAnalysis.nextVideo.structure.map((s, i) => `${i + 1}. ${s}`).join('\n')}\n\nCTA: ${outlier.aiAnalysis.nextVideo.cta}`
     : ''
+
+  async function handleImprove() {
+    if (improving) return
+    setImproving(true)
+    try {
+      const res = await fetch('/api/improve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ video: outlier, locale }),
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setImproved(data)
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setImproving(false)
+    }
+  }
 
   return (
     <div className={cn(
@@ -181,38 +275,90 @@ export function OutlierCard({ outlier, index, isPro = false, onUpgradeClick }: P
                 <div className="flex items-center gap-2">
                   <Clapperboard size={14} className="text-purple-500" />
                   <span className="text-xs font-semibold text-[var(--foreground)]">{t('nextVideo')}</span>
+                  {improved && (
+                    <span className="text-xs font-bold px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-950/40 dark:text-purple-400">
+                      {t('improvedBadge')}
+                    </span>
+                  )}
                 </div>
                 {showAI && (
                   <CopyButton textToCopy={nextVideoText} label={t('copyScript')} copiedLabel={t('scriptCopied')} />
                 )}
               </div>
-              <div className="p-4 space-y-3 text-sm">
-                <div>
-                  <p className="text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wide mb-1">{t('videoTitle')}</p>
-                  <p className="font-semibold text-[var(--foreground)]">"{outlier.aiAnalysis.nextVideo.title}"</p>
+
+              {improved ? (
+                <div className="p-4 space-y-3 text-sm">
+                  <div>
+                    <p className="text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wide mb-1">{t('videoTitle')}</p>
+                    <p className="font-semibold text-[var(--foreground)]">"{improved.title}"</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wide mb-1">{t('hook')}</p>
+                    <p className="italic text-[var(--foreground)] border-l-2 border-purple-400 pl-3">{improved.hook}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wide mb-1">Concept</p>
+                    <p className="text-[var(--foreground)]">{improved.concept}</p>
+                  </div>
+                  {improved.viralScore && (
+                    <ViralScoreBadge vs={improved.viralScore} t={t} />
+                  )}
+                  <button
+                    onClick={() => setImproved(null)}
+                    className="w-full text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors py-1"
+                  >
+                    ← Back to original
+                  </button>
                 </div>
-                <div>
-                  <p className="text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wide mb-1">{t('hook')}</p>
-                  <p className="italic text-[var(--foreground)] border-l-2 border-orange-400 pl-3">{outlier.aiAnalysis.nextVideo.hook}</p>
+              ) : (
+                <div className="p-4 space-y-3 text-sm">
+                  <div>
+                    <p className="text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wide mb-1">{t('videoTitle')}</p>
+                    <p className="font-semibold text-[var(--foreground)]">"{outlier.aiAnalysis.nextVideo.title}"</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wide mb-1">{t('hook')}</p>
+                    <p className="italic text-[var(--foreground)] border-l-2 border-orange-400 pl-3">{outlier.aiAnalysis.nextVideo.hook}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wide mb-1">{t('structure')}</p>
+                    <ol className="space-y-1">
+                      {outlier.aiAnalysis.nextVideo.structure.map((step, i) => (
+                        <li key={i} className="flex gap-2 text-[var(--foreground)]">
+                          <span className="text-purple-500 font-bold shrink-0">{i + 1}.</span>
+                          <span>{step}</span>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wide mb-1">{t('cta')}</p>
+                    <p className="text-[var(--foreground)] bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800/30 rounded-lg px-3 py-2 text-xs italic">
+                      "{outlier.aiAnalysis.nextVideo.cta}"
+                    </p>
+                  </div>
+
+                  {/* Viral Score */}
+                  {outlier.aiAnalysis.nextVideo.viralScore && showAI && (
+                    <ViralScoreBadge vs={outlier.aiAnalysis.nextVideo.viralScore} t={t} />
+                  )}
+
+                  {/* Improve this idea button */}
+                  {showAI && (
+                    <button
+                      onClick={handleImprove}
+                      disabled={improving}
+                      className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-purple-300 dark:border-purple-800/50 bg-purple-50 dark:bg-purple-950/20 text-purple-700 dark:text-purple-400 text-xs font-semibold hover:bg-purple-100 dark:hover:bg-purple-950/40 disabled:opacity-60 transition-colors"
+                    >
+                      {improving ? (
+                        <><Zap size={13} className="animate-pulse" />{t('improving')}</>
+                      ) : (
+                        <><Sparkles size={13} />{t('improveIdea')}</>
+                      )}
+                    </button>
+                  )}
                 </div>
-                <div>
-                  <p className="text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wide mb-1">{t('structure')}</p>
-                  <ol className="space-y-1">
-                    {outlier.aiAnalysis.nextVideo.structure.map((step, i) => (
-                      <li key={i} className="flex gap-2 text-[var(--foreground)]">
-                        <span className="text-purple-500 font-bold shrink-0">{i + 1}.</span>
-                        <span>{step}</span>
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wide mb-1">{t('cta')}</p>
-                  <p className="text-[var(--foreground)] bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800/30 rounded-lg px-3 py-2 text-xs italic">
-                    "{outlier.aiAnalysis.nextVideo.cta}"
-                  </p>
-                </div>
-              </div>
+              )}
             </div>
           )}
 

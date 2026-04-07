@@ -1,7 +1,7 @@
 {
   "nav": {
     "exploreNiches": "Explorar nichos",
-    "goPro": "Seja Pro — $9/mês",
+    "goPro": "Seja Pro — $15/mês",
     "signIn": "Entrar",
     "signOut": "Sair"
   },
@@ -33,7 +33,7 @@
     "faq3q": "Posso usar o Outly para SEO no YouTube?",
     "faq3a": "Sim. Ao identificar que conteúdo viraliza no seu nicho, você pode fazer engenharia reversa de títulos, ganchos e tópicos de sucesso — que é a forma mais eficaz de SEO no YouTube.",
     "faq4q": "Qual é a diferença entre grátis e Pro?",
-    "faq4a": "Usuários gratuitos têm 3 buscas por dia e veem o primeiro breakdown de IA. Usuários Pro ($9/mês) têm buscas ilimitadas, análise completa de IA em todos os outliers e links compartilháveis."
+    "faq4a": "Usuários gratuitos têm 3 buscas por dia e veem o primeiro breakdown de IA. Usuários Pro ($15/mês) têm buscas ilimitadas, análise completa de IA em todos os outliers e links compartilháveis."
   },
   "search": {
     "placeholder": "URL do canal, @usuário ou palavra-chave...",
@@ -50,9 +50,9 @@
     "defaultTitle": "Desbloqueie a análise completa de IA",
     "defaultDesc": "Por que cada outlier explodiu — e como replicar.",
     "cta": "Obter Outly Pro",
-    "ctaLifetime": " — $97 para sempre",
-    "ctaAnnual": " — $86/ano",
-    "ctaMonthly": " — $9/mês",
+    "ctaLifetime": " — $147 para sempre",
+    "ctaAnnual": " — $120/ano",
+    "ctaMonthly": " — $15/mês",
     "stripe": "Checkout seguro via Stripe",
     "cancel": "· Cancele quando quiser",
     "feat1": "Buscas ilimitadas por dia",
@@ -70,7 +70,7 @@
     "noOutliersDesc": "Este canal/keyword tem performance muito consistente. Tente um canal maior ou uma palavra-chave mais ampla.",
     "unlockTitle": "🔓 Desbloqueie a análise completa para todos os {count} outliers",
     "unlockDesc": "Veja o breakdown completo: por que cada vídeo explodiu + guia de replicação passo a passo",
-    "upgradeCta": "Upgrade para Pro — $9/mês",
+    "upgradeCta": "Upgrade para Pro — $15/mês",
     "fomoTitle": "🔥 {count} ideias virais a mais escondidas",
     "fomoDesc": "Breakdown completo de IA, scripts de copiar-colar e ideias de TikTok para cada outlier",
     "fomoBtn": "Desbloquear as {count} ideias →"
@@ -96,7 +96,14 @@
     "lockedCta": "Desbloquear Pro →",
     "unlockTitle": "Desbloqueie a análise completa",
     "upgradePro": "Upgrade para Pro →",
-    "generating": "Gerando análise de IA..."
+    "generating": "Gerando análise de IA...",
+    "viralScore": "Pontuação Viral",
+    "viralScoreLow": "Potencial baixo",
+    "viralScoreMedium": "Potencial médio",
+    "viralScoreHigh": "Potencial alto",
+    "improveIdea": "Melhorar esta ideia",
+    "improving": "Melhorando...",
+    "improvedBadge": "Melhorado ✦"
   },
   "auth": {
     "title": "Entrar no Outly",

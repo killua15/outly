@@ -1,7 +1,7 @@
 {
   "nav": {
     "exploreNiches": "Explorar nichos",
-    "goPro": "Hazte Pro — $9/mes",
+    "goPro": "Hazte Pro — $15/mes",
     "signIn": "Iniciar sesión",
     "signOut": "Cerrar sesión"
   },
@@ -33,7 +33,7 @@
     "faq3q": "¿Puedo usar Outly para SEO en YouTube?",
     "faq3a": "Sí. Al identificar qué contenido se vuelve viral en tu nicho, puedes hacer ingeniería inversa de títulos, ganchos y temas exitosos — que es la forma más efectiva de SEO en YouTube.",
     "faq4q": "¿Cuál es la diferencia entre gratis y Pro?",
-    "faq4a": "Los usuarios gratuitos obtienen 3 búsquedas por día y ven el primer análisis de IA. Los usuarios Pro ($9/mes) obtienen búsquedas ilimitadas, análisis completo de IA en todos los outliers y enlaces compartibles."
+    "faq4a": "Los usuarios gratuitos obtienen 3 búsquedas por día y ven el primer análisis de IA. Los usuarios Pro ($15/mes) obtienen búsquedas ilimitadas, análisis completo de IA en todos los outliers y enlaces compartibles."
   },
   "search": {
     "placeholder": "URL del canal, @usuario o palabra clave...",
@@ -50,9 +50,9 @@
     "defaultTitle": "Desbloquea el análisis completo de IA",
     "defaultDesc": "Por qué cada outlier explotó y cómo replicarlo.",
     "cta": "Obtener Outly Pro",
-    "ctaLifetime": " — $97 de por vida",
-    "ctaAnnual": " — $86/año",
-    "ctaMonthly": " — $9/mes",
+    "ctaLifetime": " — $147 de por vida",
+    "ctaAnnual": " — $120/año",
+    "ctaMonthly": " — $15/mes",
     "stripe": "Pago seguro con Stripe",
     "cancel": "· Cancela cuando quieras",
     "feat1": "Búsquedas ilimitadas por día",
@@ -70,7 +70,7 @@
     "noOutliersDesc": "Este canal/keyword tiene un rendimiento muy consistente. Intenta con un canal más grande o una palabra clave más amplia.",
     "unlockTitle": "🔓 Desbloquea el análisis completo para los {count} outliers",
     "unlockDesc": "Ve el desglose completo: por qué explotó cada video + guía de replicación paso a paso",
-    "upgradeCta": "Actualizar a Pro — $9/mes",
+    "upgradeCta": "Actualizar a Pro — $15/mes",
     "fomoTitle": "🔥 {count} ideas virales más ocultas",
     "fomoDesc": "Desglose completo de IA, scripts copia-pega e ideas de TikTok para cada outlier",
     "fomoBtn": "Desbloquear las {count} ideas →"
@@ -96,7 +96,14 @@
     "lockedCta": "Desbloquear Pro →",
     "unlockTitle": "Desbloquea el análisis completo",
     "upgradePro": "Actualizar a Pro →",
-    "generating": "Generando análisis de IA..."
+    "generating": "Generando análisis de IA...",
+    "viralScore": "Puntuación Viral",
+    "viralScoreLow": "Potencial bajo",
+    "viralScoreMedium": "Potencial medio",
+    "viralScoreHigh": "Potencial alto",
+    "improveIdea": "Mejorar esta idea",
+    "improving": "Mejorando...",
+    "improvedBadge": "Mejorado ✦"
   },
   "auth": {
     "title": "Inicia sesión en Outly",

@@ -56,7 +56,7 @@ export function AuthModal({ open, onClose, onSignedIn }: Props) {
 
   async function handleVerifyCode(e: React.FormEvent) {
     e.preventDefault()
-    if (code.length < 6) return
+    if (code.length < 6 || code.length > 8) return
     setLoading(true)
     setError(null)
 
@@ -159,18 +159,18 @@ export function AuthModal({ open, onClose, onSignedIn }: Props) {
                 type="text"
                 inputMode="numeric"
                 pattern="[0-9]*"
-                maxLength={6}
+                maxLength={8}
                 value={code}
                 onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
                 placeholder="000000"
                 required
                 autoFocus
-                className="w-full px-4 py-3 rounded-xl border border-[var(--border)] bg-[var(--background)] text-2xl font-bold tracking-[0.5em] text-center focus:outline-none focus:ring-2 focus:ring-orange-500/40"
+                className="w-full px-4 py-3 rounded-xl border border-[var(--border)] bg-[var(--background)] text-2xl font-bold tracking-[0.4em] text-center focus:outline-none focus:ring-2 focus:ring-orange-500/40"
               />
               {error && <p className="text-xs text-red-500">{error}</p>}
               <button
                 type="submit"
-                disabled={loading || code.length < 6}
+                disabled={loading || code.length < 6 || code.length > 8}
                 className="w-full flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 disabled:opacity-60 text-white font-semibold py-2.5 rounded-xl text-sm transition-colors"
               >
                 {loading && <Loader2 size={15} className="animate-spin" />}

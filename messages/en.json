@@ -1,7 +1,7 @@
 {
   "nav": {
     "exploreNiches": "Explore niches",
-    "goPro": "Go Pro — $9/mo",
+    "goPro": "Go Pro — $15/mo",
     "signIn": "Sign in",
     "signOut": "Sign out"
   },
@@ -33,7 +33,7 @@
     "faq3q": "Can I use Outly for YouTube SEO?",
     "faq3a": "Yes. By identifying what content goes viral in your niche, you can reverse-engineer successful titles, hooks, and topics — which is the most effective form of YouTube SEO.",
     "faq4q": "What's the difference between free and Pro?",
-    "faq4a": "Free users get 3 searches per day and see the first AI breakdown. Pro users ($9/mo) get unlimited searches, full AI analysis on all outliers, and shareable analysis links."
+    "faq4a": "Free users get 3 searches per day and see the first AI breakdown. Pro users ($15/mo) get unlimited searches, full AI analysis on all outliers, and shareable analysis links."
   },
   "search": {
     "placeholder": "YouTube channel URL, @handle, or keyword...",
@@ -50,9 +50,9 @@
     "defaultTitle": "Unlock full AI breakdown",
     "defaultDesc": "Why every outlier exploded — and how to replicate it.",
     "cta": "Get Outly Pro",
-    "ctaLifetime": " — $97 forever",
-    "ctaAnnual": " — $86/yr",
-    "ctaMonthly": " — $9/mo",
+    "ctaLifetime": " — $147 forever",
+    "ctaAnnual": " — $120/yr",
+    "ctaMonthly": " — $15/mo",
     "stripe": "Secure checkout via Stripe",
     "cancel": "· Cancel anytime",
     "feat1": "Unlimited searches per day",
@@ -70,7 +70,7 @@
     "noOutliersDesc": "This channel/keyword has very consistent performance. Try a larger channel or a broader keyword.",
     "unlockTitle": "🔓 Unlock full AI analysis for all {count} outliers",
     "unlockDesc": "See complete breakdown: why each video exploded + step-by-step replication guide",
-    "upgradeCta": "Upgrade to Pro — $9/mo",
+    "upgradeCta": "Upgrade to Pro — $15/mo",
     "fomoTitle": "🔥 {count} more viral ideas hidden",
     "fomoDesc": "Full AI breakdown, copy-paste scripts and TikTok ideas for every outlier",
     "fomoBtn": "Unlock all {count} ideas →"
@@ -96,7 +96,14 @@
     "lockedCta": "Unlock Pro →",
     "unlockTitle": "Unlock full AI analysis",
     "upgradePro": "Upgrade to Pro →",
-    "generating": "Generating AI analysis..."
+    "generating": "Generating AI analysis...",
+    "viralScore": "Viral Score",
+    "viralScoreLow": "Low potential",
+    "viralScoreMedium": "Medium potential",
+    "viralScoreHigh": "High potential",
+    "improveIdea": "Improve this idea",
+    "improving": "Improving...",
+    "improvedBadge": "Improved ✦"
   },
   "auth": {
     "title": "Sign in to Outly",

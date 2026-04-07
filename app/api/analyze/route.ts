@@ -52,6 +52,8 @@ export async function POST(req: NextRequest) {
             why_exploded: string; pattern: string; how_to_replicate: string[]; new_idea: string;
             next_video_title: string; next_video_hook: string; next_video_structure: string[]; next_video_cta: string;
             tiktok_ideas: { hook: string; concept: string }[]; ai_analyzed: boolean;
+            viral_score: number; score_hook: number; score_topic: number; score_repeatability: number;
+            score_emotion: number; score_label: string; score_reason: string;
           }) => ({
             id: o.video_id,
             title: o.title,
@@ -73,6 +75,17 @@ export async function POST(req: NextRequest) {
                 hook: o.next_video_hook,
                 structure: o.next_video_structure ?? [],
                 cta: o.next_video_cta,
+                viralScore: o.viral_score != null ? {
+                  score: o.viral_score,
+                  breakdown: {
+                    hook: o.score_hook,
+                    topic: o.score_topic,
+                    repeatability: o.score_repeatability,
+                    emotion: o.score_emotion,
+                  },
+                  label: o.score_label,
+                  reason: o.score_reason,
+                } : undefined,
               } : undefined,
               tiktokIdeas: o.tiktok_ideas ?? undefined,
             } : undefined,
@@ -134,6 +147,13 @@ export async function POST(req: NextRequest) {
               next_video_structure: o.aiAnalysis?.nextVideo?.structure,
               next_video_cta: o.aiAnalysis?.nextVideo?.cta,
               tiktok_ideas: o.aiAnalysis?.tiktokIdeas,
+              viral_score: o.aiAnalysis?.nextVideo?.viralScore?.score,
+              score_hook: o.aiAnalysis?.nextVideo?.viralScore?.breakdown?.hook,
+              score_topic: o.aiAnalysis?.nextVideo?.viralScore?.breakdown?.topic,
+              score_repeatability: o.aiAnalysis?.nextVideo?.viralScore?.breakdown?.repeatability,
+              score_emotion: o.aiAnalysis?.nextVideo?.viralScore?.breakdown?.emotion,
+              score_label: o.aiAnalysis?.nextVideo?.viralScore?.label,
+              score_reason: o.aiAnalysis?.nextVideo?.viralScore?.reason,
               ai_analyzed: !!o.aiAnalysis,
             }))
           )
