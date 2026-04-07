@@ -88,6 +88,7 @@ function mapOutlier(o: {
   tiktok_ideas: { hook: string; concept: string }[]; ai_analyzed: boolean;
   viral_score: number; score_hook: number; score_topic: number; score_repeatability: number;
   score_emotion: number; score_label: string; score_reason: string;
+            score_confidence: number; next_video_difficulty: string;
 }) {
   return {
     id: o.video_id,
@@ -120,7 +121,9 @@ function mapOutlier(o: {
           },
           label: o.score_label,
           reason: o.score_reason,
+          confidence: o.score_confidence,
         } : undefined,
+        difficulty: o.next_video_difficulty ?? undefined,
       } : undefined,
       tiktokIdeas: o.tiktok_ideas ?? undefined,
     } : undefined,
@@ -253,6 +256,8 @@ export async function POST(req: NextRequest) {
               score_emotion: o.aiAnalysis?.nextVideo?.viralScore?.breakdown?.emotion,
               score_label: o.aiAnalysis?.nextVideo?.viralScore?.label,
               score_reason: o.aiAnalysis?.nextVideo?.viralScore?.reason,
+              score_confidence: o.aiAnalysis?.nextVideo?.viralScore?.confidence,
+              next_video_difficulty: o.aiAnalysis?.nextVideo?.difficulty,
               ai_analyzed: !!o.aiAnalysis,
             }))
           )

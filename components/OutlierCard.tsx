@@ -3,10 +3,12 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import { formatViews, formatMultiplier, cn } from '@/lib/utils'
-import type { ImprovedIdea, OutlierVideo, ViralScore } from '@/types'
-import { Flame, Brain, Target, Lightbulb, ExternalLink, Lock, Clapperboard, Smartphone, Copy, Check, Zap, Sparkles, TrendingUp } from 'lucide-react'
-import { useTranslations } from 'next-intl'
-import { useLocale } from 'next-intl'
+import type { DifficultyLevel, ImprovedIdea, OutlierVideo, ViralScore } from '@/types'
+import {
+  Flame, Brain, Target, Lightbulb, ExternalLink, Lock,
+  Clapperboard, Smartphone, Copy, Check, Zap, Sparkles, TrendingUp, AlertTriangle,
+} from 'lucide-react'
+import { useTranslations, useLocale } from 'next-intl'
 
 interface Props {
   outlier: OutlierVideo
@@ -15,89 +17,139 @@ interface Props {
   onUpgradeClick?: () => void
 }
 
-const MULTIPLIER_COLORS = {
-  low: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-  mid: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
-  high: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-}
-
-const LABEL_STYLES = {
-  Exploding: 'bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400',
-  Spike: 'bg-orange-100 text-orange-700 dark:bg-orange-950/40 dark:text-orange-400',
-  Consistent: 'bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400',
-}
-
-function getMultiplierColor(m: number) {
-  if (m >= 10) return MULTIPLIER_COLORS.high
-  if (m >= 5) return MULTIPLIER_COLORS.mid
-  return MULTIPLIER_COLORS.low
-}
+// ─── Score color helpers ───────────────────────────────────────────────────
 
 function getScoreColor(score: number) {
-  if (score >= 8) return 'text-green-600 dark:text-green-400'
-  if (score >= 5) return 'text-yellow-600 dark:text-yellow-400'
-  return 'text-red-600 dark:text-red-400'
+  if (score >= 8) return 'text-green-500'
+  if (score >= 5) return 'text-yellow-500'
+  return 'text-red-500'
 }
 
 function getScoreBarColor(score: number) {
   if (score >= 8) return 'bg-green-500'
-  if (score >= 5) return 'bg-yellow-500'
+  if (score >= 5) return 'bg-yellow-400'
   return 'bg-red-500'
 }
 
-function ViralScoreBadge({ vs, t }: { vs: ViralScore; t: ReturnType<typeof useTranslations<'card'>> }) {
+function getLabelColors(label: string) {
+  if (label === 'High') return 'bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400'
+  if (label === 'Medium') return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-950/40 dark:text-yellow-400'
+  return 'bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400'
+}
+
+function getDifficultyColors(d: DifficultyLevel) {
+  if (d === 'Easy') return 'bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400'
+  if (d === 'Medium') return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-950/40 dark:text-yellow-400'
+  return 'bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400'
+}
+
+function getDifficultyDot(d: DifficultyLevel) {
+  if (d === 'Easy') return 'bg-green-500'
+  if (d === 'Medium') return 'bg-yellow-500'
+  return 'bg-red-500'
+}
+
+// ─── Viral Score Badge ─────────────────────────────────────────────────────
+
+function ViralScoreBadge({
+  vs,
+  t,
+  onImprove,
+  improving,
+}: {
+  vs: ViralScore
+  t: ReturnType<typeof useTranslations<'card'>>
+  onImprove?: () => void
+  improving?: boolean
+}) {
   const labelKey = vs.label === 'High' ? 'viralScoreHigh' : vs.label === 'Medium' ? 'viralScoreMedium' : 'viralScoreLow'
+
+  const bars: [string, number][] = [
+    [t('scoreHook'), vs.breakdown.hook],
+    [t('scoreTopic'), vs.breakdown.topic],
+    [t('scoreRepeatability'), vs.breakdown.repeatability],
+    [t('scoreEmotion'), vs.breakdown.emotion],
+  ]
+
   return (
-    <div className="border border-[var(--border)] rounded-xl p-4 space-y-3">
-      <div className="flex items-center justify-between">
+    <div className="rounded-xl border border-[var(--border)] overflow-hidden">
+      {/* Header row */}
+      <div className="flex items-center justify-between px-4 py-3 bg-[var(--muted)] border-b border-[var(--border)]">
         <div className="flex items-center gap-2">
           <TrendingUp size={14} className="text-purple-500 shrink-0" />
-          <span className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wide">{t('viralScore')}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className={cn('text-2xl font-black tabular-nums', getScoreColor(vs.score))}>
-            {vs.score.toFixed(1)}
+          <span className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wide">
+            {t('viralScore')}
           </span>
-          <span className="text-xs text-[var(--muted-foreground)]">/10</span>
+        </div>
+        <span className={cn('text-xs font-bold px-2.5 py-1 rounded-full', getLabelColors(vs.label))}>
+          {t(labelKey as never)}
+        </span>
+      </div>
+
+      {/* Score + confidence */}
+      <div className="px-4 pt-4 pb-3 flex items-end gap-3">
+        <span className={cn('text-6xl font-black tabular-nums leading-none', getScoreColor(vs.score))}>
+          {vs.score.toFixed(1)}
+        </span>
+        <div className="pb-1">
+          <span className="text-xl text-[var(--muted-foreground)]">/10</span>
+          {vs.confidence != null && (
+            <p className="text-xs text-[var(--muted-foreground)] mt-0.5">
+              {t('confidence')}: <span className="font-semibold text-[var(--foreground)]">{vs.confidence}%</span>
+            </p>
+          )}
         </div>
       </div>
 
       {/* Score bars */}
-      <div className="space-y-1.5">
-        {([
-          ['hook', vs.breakdown.hook],
-          ['topic', vs.breakdown.topic],
-          ['repeatability', vs.breakdown.repeatability],
-          ['emotion', vs.breakdown.emotion],
-        ] as [string, number][]).map(([key, val]) => (
-          <div key={key} className="flex items-center gap-2">
-            <span className="text-xs text-[var(--muted-foreground)] w-20 capitalize shrink-0">{key}</span>
-            <div className="flex-1 h-1.5 bg-[var(--muted)] rounded-full overflow-hidden">
+      <div className="px-4 pb-3 space-y-2">
+        {bars.map(([label, val]) => (
+          <div key={label} className="flex items-center gap-2">
+            <span className="text-xs text-[var(--muted-foreground)] w-16 shrink-0">{label}</span>
+            <div className="flex-1 h-2 bg-[var(--muted)] rounded-full overflow-hidden">
               <div
-                className={cn('h-full rounded-full transition-all', getScoreBarColor(val))}
+                className={cn('h-full rounded-full transition-all duration-500', getScoreBarColor(val))}
                 style={{ width: `${val * 10}%` }}
               />
             </div>
-            <span className="text-xs font-semibold w-4 text-right tabular-nums">{val}</span>
+            <span className={cn('text-xs font-bold w-4 text-right tabular-nums', getScoreColor(val))}>{val}</span>
           </div>
         ))}
       </div>
 
-      <p className="text-xs text-[var(--muted-foreground)] italic border-t border-[var(--border)] pt-2">{vs.reason}</p>
-
-      <div className="flex justify-end">
-        <span className={cn(
-          'text-xs font-bold px-2 py-0.5 rounded-full',
-          vs.label === 'High' ? 'bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400'
-          : vs.label === 'Medium' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-950/40 dark:text-yellow-400'
-          : 'bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400'
-        )}>
-          {t(labelKey as never)}
-        </span>
+      {/* Reason */}
+      <div className="px-4 pb-3 border-t border-[var(--border)] pt-2.5">
+        <p className="text-xs text-[var(--muted-foreground)] italic">{vs.reason}</p>
       </div>
+
+      {/* Urgency signal */}
+      <div className="px-4 pb-3">
+        <p className="text-xs font-semibold text-green-600 dark:text-green-400">
+          {t('urgencySignal')}
+        </p>
+      </div>
+
+      {/* Improve button — primary CTA */}
+      {onImprove && (
+        <div className="px-4 pb-4">
+          <button
+            onClick={onImprove}
+            disabled={improving}
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-orange-500 hover:bg-orange-600 disabled:opacity-60 text-white font-bold text-sm transition-colors active:scale-95"
+          >
+            {improving ? (
+              <><Zap size={14} className="animate-pulse" />{t('improving')}</>
+            ) : (
+              <><Zap size={14} />⚡ {t('improveIdea')}</>
+            )}
+          </button>
+        </div>
+      )}
     </div>
   )
 }
+
+// ─── Copy button ───────────────────────────────────────────────────────────
 
 function CopyButton({ textToCopy, label, copiedLabel }: { textToCopy: string; label: string; copiedLabel: string }) {
   const [copied, setCopied] = useState(false)
@@ -117,24 +169,30 @@ function CopyButton({ textToCopy, label, copiedLabel }: { textToCopy: string; la
   )
 }
 
+// ─── Main card ─────────────────────────────────────────────────────────────
+
 export function OutlierCard({ outlier, index, isPro = false, onUpgradeClick }: Props) {
   const t = useTranslations('card')
   const locale = useLocale()
   const showAI = isPro || index === 0
   const isDemo = outlier.id.startsWith('demo_')
+  const isOld = (outlier.daysOld ?? 0) > 365
   const videoUrl = isDemo ? '#' : `https://www.youtube.com/watch?v=${outlier.id}`
 
   const [improving, setImproving] = useState(false)
   const [improved, setImproved] = useState<ImprovedIdea | null>(null)
 
+  const labelStyles: Record<string, string> = {
+    Exploding: 'bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400',
+    Spike: 'bg-orange-100 text-orange-700 dark:bg-orange-950/40 dark:text-orange-400',
+    Consistent: 'bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400',
+  }
+
   const labelKey = outlier.performanceLabel
     ? ({ Exploding: 'labelExploding', Spike: 'labelSpike', Consistent: 'labelConsistent' }[outlier.performanceLabel])
     : null
 
-  const activeNextVideo = improved ?? outlier.aiAnalysis?.nextVideo
-  const nextVideoText = activeNextVideo
-    ? `Title: ${activeNextVideo.title}\n\nHook: ${'hook' in activeNextVideo ? activeNextVideo.hook : outlier.aiAnalysis?.nextVideo?.hook}\n\nConcept: ${'concept' in activeNextVideo ? activeNextVideo.concept : ''}`
-    : outlier.aiAnalysis?.nextVideo
+  const nextVideoText = outlier.aiAnalysis?.nextVideo
     ? `Title: ${outlier.aiAnalysis.nextVideo.title}\n\nHook: ${outlier.aiAnalysis.nextVideo.hook}\n\nStructure:\n${outlier.aiAnalysis.nextVideo.structure.map((s, i) => `${i + 1}. ${s}`).join('\n')}\n\nCTA: ${outlier.aiAnalysis.nextVideo.cta}`
     : ''
 
@@ -147,13 +205,8 @@ export function OutlierCard({ outlier, index, isPro = false, onUpgradeClick }: P
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ video: outlier, locale }),
       })
-      if (res.ok) {
-        const data = await res.json()
-        setImproved(data)
-      }
-    } catch {
-      // silently fail
-    } finally {
+      if (res.ok) setImproved(await res.json())
+    } catch { /* silent */ } finally {
       setImproving(false)
     }
   }
@@ -163,6 +216,15 @@ export function OutlierCard({ outlier, index, isPro = false, onUpgradeClick }: P
       'rounded-2xl border border-[var(--border)] bg-[var(--card)] overflow-hidden transition-shadow hover:shadow-lg',
       index === 0 && 'ring-2 ring-orange-500/20'
     )}>
+
+      {/* Old content warning */}
+      {isOld && (
+        <div className="flex items-center gap-2 px-5 py-2 bg-yellow-50 dark:bg-yellow-950/20 border-b border-yellow-200 dark:border-yellow-800/30">
+          <AlertTriangle size={13} className="text-yellow-600 dark:text-yellow-400 shrink-0" />
+          <p className="text-xs text-yellow-700 dark:text-yellow-400 font-medium">{t('oldContentWarning')}</p>
+        </div>
+      )}
+
       {/* Thumbnail + header */}
       <div className="flex gap-4 p-5">
         {outlier.thumbnail ? (
@@ -178,13 +240,22 @@ export function OutlierCard({ outlier, index, isPro = false, onUpgradeClick }: P
         )}
 
         <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2 mb-1">
+          <div className="flex items-start justify-between gap-2 mb-1.5">
             <div className="flex items-center gap-1.5 flex-wrap">
-              <span className={cn('text-xs font-bold px-2 py-0.5 rounded-full shrink-0', getMultiplierColor(outlier.multiplier))}>
-                {formatMultiplier(outlier.multiplier)}
+              {/* Multiplier — "28x acima da média" */}
+              <span className={cn(
+                'text-xs font-bold px-2 py-0.5 rounded-full shrink-0',
+                outlier.multiplier >= 10
+                  ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                  : outlier.multiplier >= 5
+                  ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400'
+                  : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
+              )}>
+                {formatMultiplier(outlier.multiplier)} {t('multiplierSuffix')}
               </span>
+              {/* Performance label */}
               {labelKey && (
-                <span className={cn('text-xs font-semibold px-2 py-0.5 rounded-full shrink-0', LABEL_STYLES[outlier.performanceLabel!])}>
+                <span className={cn('text-xs font-semibold px-2 py-0.5 rounded-full shrink-0', labelStyles[outlier.performanceLabel!])}>
                   {t(labelKey as never)}
                 </span>
               )}
@@ -206,10 +277,13 @@ export function OutlierCard({ outlier, index, isPro = false, onUpgradeClick }: P
       {/* AI Analysis */}
       {outlier.aiAnalysis ? (
         <div className={cn('relative px-5 pb-5 space-y-4', !showAI && 'select-none')}>
-          {/* Locked overlay — FOMO */}
+
+          {/* Locked overlay */}
           {!showAI && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center z-10 rounded-b-2xl"
-              style={{ background: 'linear-gradient(to bottom, transparent 0%, var(--card) 30%)' }}>
+            <div
+              className="absolute inset-0 flex flex-col items-center justify-center z-10 rounded-b-2xl"
+              style={{ background: 'linear-gradient(to bottom, transparent 0%, var(--card) 30%)' }}
+            >
               <div className="mt-16 flex flex-col items-center gap-3 text-center px-6">
                 <div className="p-2.5 rounded-full bg-orange-100 dark:bg-orange-950/40">
                   <Lock size={18} className="text-orange-500" />
@@ -268,7 +342,7 @@ export function OutlierCard({ outlier, index, isPro = false, onUpgradeClick }: P
             <p className="text-sm font-medium pl-5">{outlier.aiAnalysis.newIdea}</p>
           </div>
 
-          {/* Next Video (Copy & Paste) */}
+          {/* Next Video section */}
           {outlier.aiAnalysis.nextVideo && (
             <div className="border border-[var(--border)] rounded-xl overflow-hidden">
               <div className="flex items-center justify-between px-4 py-2.5 bg-[var(--muted)] border-b border-[var(--border)]">
@@ -290,11 +364,11 @@ export function OutlierCard({ outlier, index, isPro = false, onUpgradeClick }: P
                 <div className="p-4 space-y-3 text-sm">
                   <div>
                     <p className="text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wide mb-1">{t('videoTitle')}</p>
-                    <p className="font-semibold text-[var(--foreground)]">"{improved.title}"</p>
+                    <p className="font-semibold">"{improved.title}"</p>
                   </div>
                   <div>
                     <p className="text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wide mb-1">{t('hook')}</p>
-                    <p className="italic text-[var(--foreground)] border-l-2 border-purple-400 pl-3">{improved.hook}</p>
+                    <p className="italic border-l-2 border-purple-400 pl-3">{improved.hook}</p>
                   </div>
                   <div>
                     <p className="text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wide mb-1">Concept</p>
@@ -307,24 +381,24 @@ export function OutlierCard({ outlier, index, isPro = false, onUpgradeClick }: P
                     onClick={() => setImproved(null)}
                     className="w-full text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors py-1"
                   >
-                    ← Back to original
+                    {t('backToOriginal')}
                   </button>
                 </div>
               ) : (
                 <div className="p-4 space-y-3 text-sm">
                   <div>
                     <p className="text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wide mb-1">{t('videoTitle')}</p>
-                    <p className="font-semibold text-[var(--foreground)]">"{outlier.aiAnalysis.nextVideo.title}"</p>
+                    <p className="font-semibold">"{outlier.aiAnalysis.nextVideo.title}"</p>
                   </div>
                   <div>
                     <p className="text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wide mb-1">{t('hook')}</p>
-                    <p className="italic text-[var(--foreground)] border-l-2 border-orange-400 pl-3">{outlier.aiAnalysis.nextVideo.hook}</p>
+                    <p className="italic border-l-2 border-orange-400 pl-3">{outlier.aiAnalysis.nextVideo.hook}</p>
                   </div>
                   <div>
                     <p className="text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wide mb-1">{t('structure')}</p>
                     <ol className="space-y-1">
                       {outlier.aiAnalysis.nextVideo.structure.map((step, i) => (
-                        <li key={i} className="flex gap-2 text-[var(--foreground)]">
+                        <li key={i} className="flex gap-2">
                           <span className="text-purple-500 font-bold shrink-0">{i + 1}.</span>
                           <span>{step}</span>
                         </li>
@@ -333,28 +407,40 @@ export function OutlierCard({ outlier, index, isPro = false, onUpgradeClick }: P
                   </div>
                   <div>
                     <p className="text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wide mb-1">{t('cta')}</p>
-                    <p className="text-[var(--foreground)] bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800/30 rounded-lg px-3 py-2 text-xs italic">
+                    <p className="bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800/30 rounded-lg px-3 py-2 text-xs italic">
                       "{outlier.aiAnalysis.nextVideo.cta}"
                     </p>
                   </div>
 
-                  {/* Viral Score */}
-                  {outlier.aiAnalysis.nextVideo.viralScore && showAI && (
-                    <ViralScoreBadge vs={outlier.aiAnalysis.nextVideo.viralScore} t={t} />
+                  {/* Difficulty badge */}
+                  {outlier.aiAnalysis.nextVideo.difficulty && (
+                    <div className="flex items-center gap-2 pt-1">
+                      <span className="text-xs text-[var(--muted-foreground)]">{t('difficulty')}:</span>
+                      <span className={cn('flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full', getDifficultyColors(outlier.aiAnalysis.nextVideo.difficulty))}>
+                        <span className={cn('w-1.5 h-1.5 rounded-full shrink-0', getDifficultyDot(outlier.aiAnalysis.nextVideo.difficulty))} />
+                        {t((`difficulty${outlier.aiAnalysis.nextVideo.difficulty}`) as never)}
+                      </span>
+                    </div>
                   )}
 
-                  {/* Improve this idea button */}
-                  {showAI && (
+                  {/* Viral Score + Improve button */}
+                  {outlier.aiAnalysis.nextVideo.viralScore && showAI && (
+                    <ViralScoreBadge
+                      vs={outlier.aiAnalysis.nextVideo.viralScore}
+                      t={t}
+                      onImprove={handleImprove}
+                      improving={improving}
+                    />
+                  )}
+
+                  {/* Improve button fallback if no viral score */}
+                  {!outlier.aiAnalysis.nextVideo.viralScore && showAI && (
                     <button
                       onClick={handleImprove}
                       disabled={improving}
-                      className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-purple-300 dark:border-purple-800/50 bg-purple-50 dark:bg-purple-950/20 text-purple-700 dark:text-purple-400 text-xs font-semibold hover:bg-purple-100 dark:hover:bg-purple-950/40 disabled:opacity-60 transition-colors"
+                      className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-orange-500 hover:bg-orange-600 disabled:opacity-60 text-white font-bold text-sm transition-colors"
                     >
-                      {improving ? (
-                        <><Zap size={13} className="animate-pulse" />{t('improving')}</>
-                      ) : (
-                        <><Sparkles size={13} />{t('improveIdea')}</>
-                      )}
+                      {improving ? <><Zap size={14} className="animate-pulse" />{t('improving')}</> : <><Zap size={14} />⚡ {t('improveIdea')}</>}
                     </button>
                   )}
                 </div>
@@ -367,7 +453,7 @@ export function OutlierCard({ outlier, index, isPro = false, onUpgradeClick }: P
             <div className="border border-[var(--border)] rounded-xl overflow-hidden">
               <div className="flex items-center gap-2 px-4 py-2.5 bg-[var(--muted)] border-b border-[var(--border)]">
                 <Smartphone size={14} className="text-pink-500" />
-                <span className="text-xs font-semibold text-[var(--foreground)]">{t('tiktok')}</span>
+                <span className="text-xs font-semibold">{t('tiktok')}</span>
               </div>
               <div className="p-4 space-y-3">
                 {outlier.aiAnalysis.tiktokIdeas.map((idea, i) => (

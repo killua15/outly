@@ -9,6 +9,7 @@ export interface Video {
 
 export type PerformanceLabel = 'Exploding' | 'Spike' | 'Consistent'
 export type ScoreLabel = 'Low' | 'Medium' | 'High'
+export type DifficultyLevel = 'Easy' | 'Medium' | 'Hard'
 
 export interface ScoreBreakdown {
   hook: number
@@ -22,6 +23,7 @@ export interface ViralScore {
   breakdown: ScoreBreakdown
   label: ScoreLabel
   reason: string
+  confidence?: number // 0–100
 }
 
 export interface NextVideo {
@@ -30,6 +32,7 @@ export interface NextVideo {
   structure: string[]
   cta: string
   viralScore?: ViralScore
+  difficulty?: DifficultyLevel
 }
 
 export interface TikTokIdea {

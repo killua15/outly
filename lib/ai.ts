@@ -40,8 +40,10 @@ Respond ONLY with a valid JSON object in this exact format:
         "emotion": 8
       },
       "label": "High",
-      "reason": "Short explanation of why this idea has this viral potential score"
-    }
+      "reason": "Short explanation of why this idea has this viral potential score",
+      "confidence": 82
+    },
+    "difficulty": "Easy"
   },
   "tiktokIdeas": [
     {
@@ -55,7 +57,9 @@ Respond ONLY with a valid JSON object in this exact format:
   ]
 }
 
-For the viralScore inside nextVideo: evaluate the viral potential of the proposed next video idea. Be critical and realistic — not optimistic. Score from 1-10 based on: hook strength (does the hook grab attention?), topic virality (is this topic trending or evergreen?), repeatability (will viewers watch again or share?), emotion (does it trigger a strong emotional response?). Set label to "Low" if score < 5, "Medium" if 5-7, "High" if above 7.`
+For the viralScore inside nextVideo: evaluate the viral potential of the proposed next video idea. Be critical and realistic — not optimistic. Score from 1-10 based on: hook strength (does the hook grab attention?), topic virality (is this topic trending or evergreen?), repeatability (will viewers watch again or share?), emotion (does it trigger a strong emotional response?). Set label to "Low" if score < 5, "Medium" if 5-7, "High" if above 7. Add confidence (0-100): how confident you are this idea will actually perform well, based on how proven the pattern is.
+
+For difficulty: assess production effort required. "Easy" = talking head, no editing, smartphone ok. "Medium" = some editing, B-roll, basic setup. "Hard" = complex production, multiple locations, heavy editing.`
 
   const completion = await getOpenAI().chat.completions.create({
     model: 'gpt-4o-mini',
@@ -94,7 +98,9 @@ For the viralScore inside nextVideo: evaluate the viral potential of the propose
           breakdown: { hook: 6, topic: 6, repeatability: 5, emotion: 6 },
           label: 'Medium',
           reason: 'Solid concept based on a proven viral pattern, but needs a stronger hook to stand out.',
+          confidence: 65,
         },
+        difficulty: 'Easy' as const,
       },
       tiktokIdeas: [
         {
@@ -166,6 +172,7 @@ Be critical: only increase the score if the improvement genuinely makes it more 
         breakdown: { hook: 8, topic: 7, repeatability: 6, emotion: 7 },
         label: 'Medium',
         reason: 'Improved hook and framing give this better click-through potential.',
+        confidence: 72,
       },
     }
   }
